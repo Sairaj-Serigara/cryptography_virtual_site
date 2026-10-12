@@ -983,6 +983,23 @@
             </div>
           </div>
 
+          <!-- VISUAL ECDSA WORKFLOW PIPELINE (lights up as each step executes) -->
+          <div class="visual-pipeline-track">
+            <div class="vp-node" id="vp-1"><div class="vp-icon">🔑</div><div class="vp-label">Generate Key Pair</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-1"></div>
+            <div class="vp-node" id="vp-2"><div class="vp-icon">📝</div><div class="vp-label">Enter Message</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-2"></div>
+            <div class="vp-node" id="vp-3"><div class="vp-icon">🔒</div><div class="vp-label">SHA-256 Hash</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-3"></div>
+            <div class="vp-node" id="vp-4"><div class="vp-icon">✍️</div><div class="vp-label">Sign with Private Key</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-4"></div>
+            <div class="vp-node" id="vp-5"><div class="vp-icon">📤</div><div class="vp-label">Transmit Msg + Sig</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-5"></div>
+            <div class="vp-node" id="vp-6"><div class="vp-icon">🔍</div><div class="vp-label">Verify Public Key</div></div>
+            <div class="vp-arrow-seg" id="vp-seg-6"></div>
+            <div class="vp-node" id="vp-7"><div class="vp-icon">✔</div><div class="vp-label">Authentic / Rejected</div></div>
+          </div>
+
           <!-- IN-LINE STEPS CONTAINER (EVERYTHING IN ONE BOX IN LINE) -->
           <div class="inline-steps-container">
 
@@ -1002,6 +1019,18 @@
                   </svg>
                   <span>1. Generate Key Pair</span>
                 </button>
+              </div>
+
+              <!-- KEY GENERATION PROGRESS STAGE (shown while crypto is running) -->
+              <div id="keygen-progress-stage" class="prog-stage hidden">
+                <div class="prog-inner">
+                  <div class="prog-spinner"></div>
+                  <div class="prog-text-col">
+                    <div class="prog-title" id="keygen-prog-title">Invoking CSPRNG — collecting cryptographic entropy...</div>
+                    <div class="prog-bar-wrap"><div class="prog-bar-track"><div class="prog-bar-fill" id="keygen-prog-bar" style="width:0%"></div></div></div>
+                    <div class="prog-sub" id="keygen-prog-sub">Selecting random scalar d ∈ [1, n-1]...</div>
+                  </div>
+                </div>
               </div>
 
               <!-- Key Generation Animation Stage -->
@@ -1043,6 +1072,12 @@
                 <div id="keygen-spinner-wrap" class="keygen-spinner-wrap hidden">
                   <div class="crypto-ring-spinner"></div>
                   <span class="spinner-text">Executing Scalar Point Multiplication on NIST P-256 Curve...</span>
+                </div>
+
+                <!-- Success notices shown after keygen completes -->
+                <div id="keygen-success-notices" class="step-success-notices hidden">
+                  <div class="sn-row"><span class="sn-check">✓</span><span>Private Key generated successfully — 256-bit random scalar $d$ chosen with true CSPRNG entropy.</span></div>
+                  <div class="sn-row"><span class="sn-check">✓</span><span>Public Key derived from the Private Key using Elliptic Curve Cryptography: $Q = d \times G$.</span></div>
                 </div>
               </div>
 
@@ -1161,6 +1196,18 @@
                 </div>
               </div>
 
+              <!-- HASH PROGRESS STAGE -->
+              <div id="hash-progress-stage" class="prog-stage hidden mt-3">
+                <div class="prog-inner">
+                  <div class="prog-spinner prog-spinner-cyan"></div>
+                  <div class="prog-text-col">
+                    <div class="prog-title" id="hash-prog-title">Generating SHA-256 Hash...</div>
+                    <div class="prog-bar-wrap"><div class="prog-bar-track"><div class="prog-bar-fill prog-fill-cyan" id="hash-prog-bar" style="width:0%"></div></div></div>
+                    <div class="prog-sub" id="hash-prog-sub">Encoding message to UTF-8 byte stream...</div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Message Entering SHA-256 Visual Pipeline -->
               <div id="hash-anim-stage" class="anim-stage hidden mt-3">
                 <div class="hash-pipeline-visual">
@@ -1198,6 +1245,11 @@
                     <span class="packet-icon">#️⃣</span>
                     <span class="packet-label">Digest Output ($e$)</span>
                   </div>
+                </div>
+
+                <!-- Hash success notice -->
+                <div id="hash-success-notice" class="step-success-notices hidden mt-2">
+                  <div class="sn-row"><span class="sn-check">✓</span><span>The original message has been converted into a SHA-256 hash. Any alteration produces a completely different digest.</span></div>
                 </div>
               </div>
 
@@ -1256,6 +1308,25 @@
                 </button>
               </div>
 
+              <!-- SIGN PROGRESS STAGE -->
+              <div id="sign-progress-stage" class="prog-stage hidden mt-3">
+                <div class="prog-inner">
+                  <div class="prog-spinner prog-spinner-purple"></div>
+                  <div class="prog-text-col">
+                    <div class="prog-title" id="sign-prog-title">Generating Digital Signature...</div>
+                    <div class="prog-bar-wrap"><div class="prog-bar-track"><div class="prog-bar-fill prog-fill-purple" id="sign-prog-bar" style="width:0%"></div></div></div>
+                    <div class="prog-sub" id="sign-prog-sub">Loading Private Key $d$...</div>
+                  </div>
+                </div>
+                <div class="sign-checklist">
+                  <div class="sc-item" id="sc-1"><span class="sc-icon sc-pending">○</span><span>Private Key ($d$) — loaded</span></div>
+                  <div class="sc-item" id="sc-2"><span class="sc-icon sc-pending">○</span><span>SHA-256 Hash ($e$) — loaded</span></div>
+                  <div class="sc-item" id="sc-3"><span class="sc-icon sc-pending">○</span><span>Ephemeral Scalar ($k$) — selected</span></div>
+                  <div class="sc-item" id="sc-4"><span class="sc-icon sc-pending">○</span><span>Computing $r = (k \times G)_x \bmod n$</span></div>
+                  <div class="sc-item" id="sc-5"><span class="sc-icon sc-pending">○</span><span>Computing $s = k^{-1}(e + dr) \bmod n$</span></div>
+                </div>
+              </div>
+
               <!-- Signing Architectural Animation Flow -->
               <div id="signing-anim-stage" class="anim-stage hidden mt-3">
                 <div class="signing-flow-diagram">
@@ -1298,6 +1369,11 @@
                   <div class="signing-output-pill">
                     <span>Digital Signature $(r, s)$</span>
                   </div>
+                </div>
+
+                <!-- Sign success notice -->
+                <div id="sign-success-notice" class="step-success-notices hidden mt-2">
+                  <div class="sn-row"><span class="sn-check">✓</span><span>The Digital Signature is generated using the Private Key. Without the private key, the signature $(r, s)$ cannot be forged.</span></div>
                 </div>
               </div>
 
@@ -1397,6 +1473,25 @@
                 </div>
               </div>
 
+              <!-- VERIFY PROGRESS STAGE -->
+              <div id="verify-progress-stage" class="prog-stage hidden mt-3">
+                <div class="prog-inner">
+                  <div class="prog-spinner prog-spinner-green"></div>
+                  <div class="prog-text-col">
+                    <div class="prog-title" id="verify-prog-title">Running Verification Engine...</div>
+                    <div class="prog-bar-wrap"><div class="prog-bar-track"><div class="prog-bar-fill prog-fill-green" id="verify-prog-bar" style="width:0%"></div></div></div>
+                    <div class="prog-sub" id="verify-prog-sub">Loading verification inputs...</div>
+                  </div>
+                </div>
+                <div class="sign-checklist">
+                  <div class="sc-item" id="vc-1"><span class="sc-icon sc-pending">○</span><span>Message Received</span></div>
+                  <div class="sc-item" id="vc-2"><span class="sc-icon sc-pending">○</span><span>Generating SHA-256 Hash...</span></div>
+                  <div class="sc-item" id="vc-3"><span class="sc-icon sc-pending">○</span><span>Public Key Loaded</span></div>
+                  <div class="sc-item" id="vc-4"><span class="sc-icon sc-pending">○</span><span>Signature Loaded</span></div>
+                  <div class="sc-item" id="vc-5"><span class="sc-icon sc-pending">○</span><span>Validating Digital Signature...</span></div>
+                </div>
+              </div>
+
               <!-- Verification Flow Visual Animation -->
               <div id="verify-anim-stage" class="anim-stage hidden mt-3">
                 <div class="verify-flow-visual">
@@ -1451,8 +1546,19 @@
                     </div>
                   </div>
                   <div class="result-text-wrap">
-                    <div class="result-heading text-green">Signature Verified: AUTHENTIC (Valid)</div>
-                    <p class="result-desc">The digital signature is <strong>cryptographically valid</strong>! Mathematical equality $v = r$ was confirmed. This guarantees two essential properties:</p>
+                    <div class="result-heading text-green">✔ Signature Verified: AUTHENTIC (Valid)</div>
+
+                    <!-- Verification Report -->
+                    <div class="vr-report">
+                      <div class="vr-report-title">Verification Report</div>
+                      <div class="vr-row vr-pass" id="vr-1"><span class="vr-icon">✓</span><span>Message Received</span></div>
+                      <div class="vr-row vr-pass" id="vr-2"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated</span></div>
+                      <div class="vr-row vr-pass" id="vr-3"><span class="vr-icon">✓</span><span>Public Key Loaded</span></div>
+                      <div class="vr-row vr-pass" id="vr-4"><span class="vr-icon">✓</span><span>Signature Loaded</span></div>
+                      <div class="vr-row vr-pass" id="vr-5"><span class="vr-icon">✓</span><span>Signature Matches — $v = r$ confirmed</span></div>
+                    </div>
+
+                    <p class="result-desc mt-2">The received message has not been modified after signing. Mathematical equality $v = r$ was confirmed.</p>
                     <div class="guarantees-grid">
                       <div class="guarantee-chip">
                         <span class="g-icon">✅</span>
@@ -1464,6 +1570,7 @@
                       </div>
                     </div>
                   </div>
+
                 </div>
 
                 <!-- Result State: Invalid (Red Cross) -->
@@ -1478,13 +1585,25 @@
                     </div>
                   </div>
                   <div class="result-text-wrap">
-                    <div class="result-heading text-red">Signature Invalid: REJECTED (Verification Failed)</div>
-                    <p class="result-desc">The digital signature is <strong>INVALID</strong>! The verification point $u_1 G + u_2 Q$ yielded $v \neq r$.</p>
+                    <div class="result-heading text-red">❌ Signature Invalid: REJECTED (Verification Failed)</div>
+
+                    <!-- Tamper Verification Report -->
+                    <div class="vr-report tamper-report">
+                      <div class="vr-report-title">Verification Report</div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Message Received</span></div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated (New Hash — Diverged from Original)</span></div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Public Key Loaded</span></div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Original Signature Loaded</span></div>
+                      <div class="vr-row vr-fail"><span class="vr-icon">✗</span><span>Signature Mismatch — $v \neq r$, integrity check failed</span></div>
+                    </div>
+
+                    <p class="result-desc mt-2">The message has been modified after signing. Therefore the generated hash no longer matches the original digital signature.</p>
                     <div class="tamper-explanation-box">
                       <div class="tamper-alert-title">🚨 Cryptographic Tamper Analysis:</div>
                       <p>Because the message was altered, SHA-256 produced a drastically different digest ($e_{\text{new}} \ne e_{\text{original}}$). This caused the scalar $u_1 = e \cdot w \bmod n$ to land on an entirely different point on the elliptic curve. The mathematical equation $u_1 G + u_2 Q = k G$ broke down completely, and the verifier instantly rejected the forged payload!</p>
                     </div>
                   </div>
+
                 </div>
 
               </div>

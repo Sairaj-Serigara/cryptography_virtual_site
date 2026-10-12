@@ -375,6 +375,39 @@ async function animateHexReveal(element, hexString, chunkSize = 4, delay = 25) {
 }
 
 // ==============================================================================
+// Visual Pipeline Step Light-Up Animation
+// ==============================================================================
+function lightUpPipelineStep(stepNumber) {
+  // Reset all pipeline nodes
+  for (let i = 1; i <= 7; i++) {
+    const node = document.getElementById(`vp-${i}`);
+    const seg = document.getElementById(`vp-seg-${i}`);
+    if (node) node.classList.remove('vp-active', 'vp-completed');
+    if (seg) seg.classList.remove('seg-active', 'seg-completed');
+  }
+
+  // Light up completed steps
+  for (let i = 1; i < stepNumber; i++) {
+    const node = document.getElementById(`vp-${i}`);
+    const seg = document.getElementById(`vp-seg-${i}`);
+    if (node) node.classList.add('vp-completed');
+    if (seg) seg.classList.add('seg-completed');
+  }
+
+  // Light up current step
+  const currentNode = document.getElementById(`vp-${stepNumber}`);
+  if (currentNode) {
+    currentNode.classList.add('vp-active');
+  }
+
+  // Light up the segment leading to current step
+  if (stepNumber > 1) {
+    const prevSeg = document.getElementById(`vp-seg-${stepNumber - 1}`);
+    if (prevSeg) prevSeg.classList.add('seg-active');
+  }
+}
+
+// ==============================================================================
 // CORE CRYPTOGRAPHIC IMPLEMENTATION VIA NATIVE WEB CRYPTO API
 // ==============================================================================
 
@@ -385,23 +418,39 @@ async function generateKeyPair() {
   const genBtn = document.getElementById('gen-keys-btn');
   const animStage = document.getElementById('keygen-anim-stage');
   const spinnerWrap = document.getElementById('keygen-spinner-wrap');
+  const progressStage = document.getElementById('keygen-progress-stage');
   const flowPrivBox = document.getElementById('flow-priv-box');
   const flowPubBox = document.getElementById('flow-pub-box');
   const privDisplay = document.getElementById('priv-key-hex');
   const pubDisplay = document.getElementById('pub-key-hex');
   const pubX = document.getElementById('pub-x-hex');
   const pubY = document.getElementById('pub-y-hex');
+  const successNotices = document.getElementById('keygen-success-notices');
+  const progTitle = document.getElementById('keygen-prog-title');
+  const progBar = document.getElementById('keygen-prog-bar');
+  const progSub = document.getElementById('keygen-prog-sub');
 
   try {
     genBtn.disabled = true;
     updateBenchStatus('Generating NIST P-256 Key Pair...', 'busy');
     logTerminal('Invoking window.crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" })...', 'info');
 
-    // Show animation stage and spinner
-    animStage.classList.remove('hidden');
-    spinnerWrap.classList.remove('hidden');
+    // Show progress stage with animation
+    progressStage.classList.remove('hidden');
+    animStage.classList.add('hidden');
+    spinnerWrap.classList.add('hidden');
     flowPrivBox.classList.remove('active-flow');
     flowPubBox.classList.remove('active-flow');
+    successNotices.classList.add('hidden');
+
+    // Animate progress bar
+    progTitle.textContent = 'Invoking CSPRNG — collecting cryptographic entropy...';
+    progSub.textContent = 'Selecting random scalar d ∈ [1, n-1]...';
+    
+    for (let i = 0; i <= 100; i += 10) {
+      progBar.style.width = `${i}%`;
+      await sleep(80);
+    }
 
     // REAL WEB CRYPTO API CALL
     const keyPair = await window.crypto.subtle.generateKey(
@@ -428,31 +477,40 @@ async function generateKeyPair() {
     logTerminal(`Private Scalar (d) generated: [${truncateHex(state.privateKeyRawHex, 8, 8)}]`, 'success');
     logTerminal(`Computed Curve Point Q = d × G on NIST P-256: [${truncateHex(state.publicKeyRawHex, 8, 8)}]`, 'success');
 
-    // Educational flow animation
-    await sleep(400);
-    spinnerWrap.classList.add('hidden');
+    // Hide progress, show animation stage
+    progressStage.classList.add('hidden');
+    animStage.classList.remove('hidden');
 
-    // 1. Highlight Private Key generation
+    // 1. Highlight Private Key generation with gradual reveal
+    await sleep(300);
     flowPrivBox.classList.add('active-flow');
+    
     if (state.isPrivateKeyMasked) {
       privDisplay.textContent = '•'.repeat(64);
       privDisplay.classList.add('masked');
     } else {
-      await animateHexReveal(privDisplay, state.privateKeyRawHex, 4, 15);
+      await animateHexReveal(privDisplay, state.privateKeyRawHex, 4, 20);
     }
 
     // 2. Animate scalar multiplication transition to Public Key
-    await sleep(500);
+    await sleep(600);
     flowPubBox.classList.add('active-flow');
-    await animateHexReveal(pubDisplay, state.publicKeyRawHex, 8, 20);
+    await animateHexReveal(pubDisplay, state.publicKeyRawHex, 8, 25);
 
     // Populate Coordinate pills
     pubX.textContent = state.publicKeyXHex;
     pubY.textContent = state.publicKeyYHex;
 
+    // Show success notices
+    await sleep(300);
+    successNotices.classList.remove('hidden');
+
     // Enable next stages
     document.getElementById('hash-msg-btn').disabled = false;
     document.getElementById('sign-msg-btn').disabled = false;
+
+    // Light up visual pipeline step 1
+    lightUpPipelineStep(1);
 
     updateStepper(2);
     updateBenchStatus('Key Pair Ready. Enter message and generate SHA-256 digest or sign.', 'ready');
@@ -502,9 +560,15 @@ function togglePrivateKeyVisibility() {
 async function generateSha256Digest(isAutoFromSign = false) {
   const msgInput = document.getElementById('message-input');
   const animStage = document.getElementById('hash-anim-stage');
+  const progressStage = document.getElementById('hash-progress-stage');
   const packetBlock = document.getElementById('anim-msg-packet');
   const packetText = document.getElementById('anim-packet-text');
   const hashDisplay = document.getElementById('hash-hex-display');
+  const hashEngineBox = document.getElementById('hash-engine-box');
+  const successNotice = document.getElementById('hash-success-notice');
+  const progTitle = document.getElementById('hash-prog-title');
+  const progBar = document.getElementById('hash-prog-bar');
+  const progSub = document.getElementById('hash-prog-sub');
 
   const text = msgInput.value;
   state.currentMessage = text;
@@ -516,10 +580,21 @@ async function generateSha256Digest(isAutoFromSign = false) {
     updateBenchStatus('Computing SHA-256 Cryptographic Hash...', 'busy');
     logTerminal(`Encoding message "${text.slice(0, 32)}..." into UTF-8 byte stream...`, 'info');
 
-    // Visual Animation of Packet Entering SHA-256
-    animStage.classList.remove('hidden');
+    // Show progress stage
+    progressStage.classList.remove('hidden');
+    animStage.classList.add('hidden');
+    successNotice.classList.add('hidden');
+    
     packetText.textContent = `"${text.slice(0, 24)}${text.length > 24 ? '...' : ''}"`;
-    packetBlock.style.transform = 'scale(1.05)';
+
+    // Animate progress
+    progTitle.textContent = 'Generating SHA-256 Hash...';
+    progSub.textContent = 'Encoding message to UTF-8 byte stream...';
+    
+    for (let i = 0; i <= 100; i += 15) {
+      progBar.style.width = `${i}%`;
+      await sleep(60);
+    }
 
     const encoder = new TextEncoder();
     const data = encoder.encode(text);
@@ -535,15 +610,34 @@ async function generateSha256Digest(isAutoFromSign = false) {
 
     logTerminal(`Computed SHA-256 Digest (e): ${hashHex}`, 'success');
 
-    // Animated gradual reveal
-    await sleep(250);
+    // Hide progress, show animation stage
+    progressStage.classList.add('hidden');
+    animStage.classList.remove('hidden');
+
+    // Animate message moving into SHA-256 block
+    packetBlock.style.transform = 'scale(1.05)';
+    await sleep(300);
     packetBlock.style.transform = 'scale(1)';
-    await animateHexReveal(hashDisplay, hashHex, 4, 18);
+    
+    // Animate hash engine
+    hashEngineBox.classList.add('engine-active');
+    await sleep(400);
+    hashEngineBox.classList.remove('engine-active');
+
+    // Animated gradual reveal of hash
+    await sleep(200);
+    await animateHexReveal(hashDisplay, hashHex, 4, 20);
+
+    // Show success notice
+    await sleep(300);
+    successNotice.classList.remove('hidden');
 
     updateBenchStatus('SHA-256 Hash Computed. Ready to Generate Signature.', 'ready');
     if (!isAutoFromSign) {
       showToast('SHA-256 Hash computed successfully!', 'success');
       updateStepper(3);
+      // Light up visual pipeline step 3
+      lightUpPipelineStep(3);
     }
 
     return hashHex;
@@ -562,9 +656,15 @@ async function generateSha256Digest(isAutoFromSign = false) {
 async function signMessage() {
   const signBtn = document.getElementById('sign-msg-btn');
   const animStage = document.getElementById('signing-anim-stage');
+  const progressStage = document.getElementById('sign-progress-stage');
   const fullSigDisplay = document.getElementById('full-sig-hex');
   const rDisplay = document.getElementById('sig-r-hex');
   const sDisplay = document.getElementById('sig-s-hex');
+  const successNotice = document.getElementById('sign-success-notice');
+  const progTitle = document.getElementById('sign-prog-title');
+  const progBar = document.getElementById('sign-prog-bar');
+  const progSub = document.getElementById('sign-prog-sub');
+  const signingCoreBox = document.getElementById('signing-core-box');
 
   if (!state.keyPair) {
     showToast('Please generate an ECC key pair first!', 'error');
@@ -578,8 +678,35 @@ async function signMessage() {
     // Ensure SHA-256 is generated
     await generateSha256Digest(true);
 
-    animStage.classList.remove('hidden');
+    // Show progress stage
+    progressStage.classList.remove('hidden');
+    animStage.classList.add('hidden');
+    successNotice.classList.add('hidden');
+
     logTerminal('Invoking window.crypto.subtle.sign({ name: "ECDSA", hash: { name: "SHA-256" } }, privateKey, data)...', 'info');
+
+    // Animate checklist items
+    progTitle.textContent = 'Generating Digital Signature...';
+    
+    const checklistItems = ['sc-1', 'sc-2', 'sc-3', 'sc-4', 'sc-5'];
+    const checklistTexts = [
+      'Private Key ($d$) — loaded',
+      'SHA-256 Hash ($e$) — loaded',
+      'Ephemeral Scalar ($k$) — selected',
+      'Computing $r = (k \times G)_x \bmod n$',
+      'Computing $s = k^{-1}(e + dr) \bmod n$'
+    ];
+    
+    for (let i = 0; i < checklistItems.length; i++) {
+      const item = document.getElementById(checklistItems[i]);
+      const icon = item.querySelector('.sc-icon');
+      icon.classList.remove('sc-pending');
+      icon.classList.add('sc-check');
+      icon.textContent = '✓';
+      progSub.textContent = checklistTexts[i];
+      progBar.style.width = `${((i + 1) / checklistItems.length) * 100}%`;
+      await sleep(400);
+    }
 
     const encoder = new TextEncoder();
     const messageBytes = encoder.encode(state.currentMessage);
@@ -609,15 +736,31 @@ async function signMessage() {
     logTerminal(`Computed s = k⁻¹(e + dr) mod n: [${truncateHex(state.sigSHex, 8, 8)}]`, 'success');
     logTerminal(`Digital Signature (r, s) created (64 bytes / 128 hex chars)`, 'success');
 
+    // Hide progress, show animation stage
+    progressStage.classList.add('hidden');
+    animStage.classList.remove('hidden');
+
+    // Animate signing engine
+    signingCoreBox.classList.add('core-active');
+    await sleep(500);
+    signingCoreBox.classList.remove('core-active');
+
     // Sequential reveal animation
-    await sleep(350);
-    await animateHexReveal(fullSigDisplay, state.signatureHex, 8, 15);
+    await sleep(300);
+    await animateHexReveal(fullSigDisplay, state.signatureHex, 8, 20);
     rDisplay.textContent = state.sigRHex;
     sDisplay.textContent = state.sigSHex;
+
+    // Show success notice
+    await sleep(300);
+    successNotice.classList.remove('hidden');
 
     // Enable Verification & Tamper Buttons
     document.getElementById('verify-btn').disabled = false;
     document.getElementById('tamper-btn').disabled = false;
+
+    // Light up visual pipeline step 4
+    lightUpPipelineStep(4);
 
     updateStepper(4);
     updateBenchStatus('Digital Signature Generated! Ready to perform Verification or Tamper Test.', 'ready');
@@ -639,10 +782,15 @@ async function signMessage() {
 async function verifySignature() {
   const verifyBtn = document.getElementById('verify-btn');
   const animStage = document.getElementById('verify-anim-stage');
+  const progressStage = document.getElementById('verify-progress-stage');
   const resultContainer = document.getElementById('verification-result-box');
   const resultValid = document.getElementById('result-valid');
   const resultInvalid = document.getElementById('result-invalid');
   const msgTag = document.getElementById('v-msg-tag');
+  const progTitle = document.getElementById('verify-prog-title');
+  const progBar = document.getElementById('verify-prog-bar');
+  const progSub = document.getElementById('verify-prog-sub');
+  const verifyCalcBox = document.getElementById('verify-calc-box');
 
   if (!state.keyPair || !state.signatureBuffer) {
     showToast('Generate keys and signature first!', 'error');
@@ -653,11 +801,38 @@ async function verifySignature() {
     verifyBtn.disabled = true;
     updateBenchStatus('Verifying ECDSA Signature against Public Key Q...', 'busy');
 
-    animStage.classList.remove('hidden');
+    // Show progress stage
+    progressStage.classList.remove('hidden');
+    animStage.classList.add('hidden');
+    resultContainer.classList.add('hidden');
+    
     msgTag.textContent = state.isTampered ? 'Tampered' : 'Original';
     msgTag.style.color = state.isTampered ? 'var(--danger-red)' : 'var(--success-green)';
 
     logTerminal('Invoking window.crypto.subtle.verify({ name: "ECDSA", hash: { name: "SHA-256" } }, publicKey, signature, data)...', 'info');
+
+    // Animate verification checklist
+    progTitle.textContent = 'Running Verification Engine...';
+    
+    const verifyItems = ['vc-1', 'vc-2', 'vc-3', 'vc-4', 'vc-5'];
+    const verifyTexts = [
+      'Message Received',
+      'Generating SHA-256 Hash...',
+      'Public Key Loaded',
+      'Signature Loaded',
+      'Validating Digital Signature...'
+    ];
+    
+    for (let i = 0; i < verifyItems.length; i++) {
+      const item = document.getElementById(verifyItems[i]);
+      const icon = item.querySelector('.sc-icon');
+      icon.classList.remove('sc-pending');
+      icon.classList.add('sc-check');
+      icon.textContent = '✓';
+      progSub.textContent = verifyTexts[i];
+      progBar.style.width = `${((i + 1) / verifyItems.length) * 100}%`;
+      await sleep(500);
+    }
 
     const encoder = new TextEncoder();
     const dataToVerify = encoder.encode(state.currentMessage);
@@ -673,7 +848,14 @@ async function verifySignature() {
       dataToVerify
     );
 
-    await sleep(600); // Visual pause for point addition simulation
+    // Hide progress, show animation stage
+    progressStage.classList.add('hidden');
+    animStage.classList.remove('hidden');
+
+    // Animate verification computation
+    verifyCalcBox.classList.add('calc-active');
+    await sleep(600);
+    verifyCalcBox.classList.remove('calc-active');
 
     resultContainer.classList.remove('hidden');
 
@@ -684,6 +866,8 @@ async function verifySignature() {
       logTerminal('Signature Verification Result: VALID (v == r verified)', 'success');
       showToast('Signature Verified: AUTHENTIC & VALID!', 'success');
       updateStepper(5); // Unlock and guide user to Step 5: Tamper Test
+      // Light up visual pipeline step 6
+      lightUpPipelineStep(6);
     } else {
       resultValid.classList.add('hidden');
       resultInvalid.classList.remove('hidden');
@@ -720,7 +904,13 @@ async function tamperMessage() {
   const tampHashEl = document.getElementById('diff-tamp-hash');
 
   const tamperedText = 'Hello, this is a tampered message!';
+  
+  // Animate the tampering
   msgInput.value = tamperedText;
+  msgInput.style.backgroundColor = 'var(--danger-bg)';
+  await sleep(300);
+  msgInput.style.backgroundColor = '';
+  
   state.currentMessage = tamperedText;
   state.isTampered = true;
 
@@ -746,8 +936,15 @@ async function tamperMessage() {
 
   showToast('Message altered! Notice the Avalanche Shift in SHA-256 digest.', 'error');
 
+  // Light up visual pipeline step 5 (transmit tampered)
+  lightUpPipelineStep(5);
+
   // Automatically trigger verification to illustrate instantaneous failure
+  await sleep(500);
   await verifySignature();
+  
+  // Light up visual pipeline step 7 (rejected)
+  lightUpPipelineStep(7);
 }
 
 /**

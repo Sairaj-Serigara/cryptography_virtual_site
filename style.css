@@ -1460,6 +1460,115 @@ code, pre {
   font-size: 0.85rem;
 }
 
+/* Visual ECDSA Workflow Pipeline Track */
+.visual-pipeline-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(180deg, var(--bg-subtle), var(--bg-card));
+  border-bottom: 1px solid var(--border-light);
+  overflow-x: auto;
+}
+
+.vp-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 2px solid var(--border-light);
+  min-width: 100px;
+  transition: all var(--transition-normal);
+  position: relative;
+  z-index: 2;
+}
+
+.vp-icon {
+  font-size: 1.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.vp-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.vp-node.vp-active {
+  border-color: var(--primary-blue);
+  background: var(--primary-light);
+  box-shadow: 0 0 20px var(--primary-glow);
+  transform: scale(1.05);
+}
+
+.vp-node.vp-active .vp-icon {
+  transform: scale(1.2);
+}
+
+.vp-node.vp-active .vp-label {
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.vp-node.vp-completed {
+  border-color: var(--success-green);
+  background: var(--success-bg);
+}
+
+.vp-node.vp-completed .vp-icon {
+  filter: brightness(1.1);
+}
+
+.vp-node.vp-completed .vp-label {
+  color: var(--success-green);
+}
+
+.vp-arrow-seg {
+  flex: 1;
+  height: 3px;
+  background: var(--border-light);
+  min-width: 30px;
+  position: relative;
+  transition: all var(--transition-normal);
+}
+
+.vp-arrow-seg::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid var(--border-light);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: border-left-color var(--transition-normal);
+}
+
+.vp-arrow-seg.seg-active {
+  background: var(--primary-blue);
+  height: 4px;
+}
+
+.vp-arrow-seg.seg-active::after {
+  border-left-color: var(--primary-blue);
+}
+
+.vp-arrow-seg.seg-completed {
+  background: var(--success-green);
+}
+
+.vp-arrow-seg.seg-completed::after {
+  border-left-color: var(--success-green);
+}
+
 /* In-Line Steps Container (Inside the single box) */
 .inline-steps-container {
   padding: 1.75rem;
@@ -1979,6 +2088,499 @@ code, pre {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--primary-blue);
+}
+
+/* Progress Stages */
+.prog-stage {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.prog-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.prog-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-medium);
+  border-top-color: var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.prog-spinner-cyan {
+  border-top-color: var(--accent-cyan);
+}
+
+.prog-spinner-purple {
+  border-top-color: #7e22ce;
+}
+
+.prog-spinner-green {
+  border-top-color: var(--success-green);
+}
+
+.prog-text-col {
+  flex: 1;
+}
+
+.prog-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.prog-bar-wrap {
+  margin-bottom: 4px;
+}
+
+.prog-bar-track {
+  height: 6px;
+  background: var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.prog-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-blue), var(--accent-cyan));
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.prog-fill-cyan {
+  background: linear-gradient(90deg, var(--accent-cyan), #38bdf8);
+}
+
+.prog-fill-purple {
+  background: linear-gradient(90deg, #7e22ce, #a855f7);
+}
+
+.prog-fill-green {
+  background: linear-gradient(90deg, var(--success-green), #10b981);
+}
+
+.prog-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Animation Stages */
+.anim-stage {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* Key Generation Flow */
+.keygen-flow-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.flow-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 170px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.flow-box.active-flow {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 20px var(--primary-glow);
+  transform: scale(1.05);
+}
+
+.entropy-pulser {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background: rgba(26, 86, 219, 0.1);
+  animation: entropyPulse 1.5s infinite;
+}
+
+@keyframes entropyPulse {
+  0%, 100% { opacity: 0; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Success Notices */
+.step-success-notices {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.sn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.sn-row:last-child {
+  margin-bottom: 0;
+}
+
+.sn-check {
+  color: var(--success-green);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* Hash Pipeline */
+.hash-pipeline-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.packet-block {
+  background: var(--bg-card);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform var(--transition-normal);
+}
+
+.packet-icon {
+  font-size: 1.3rem;
+}
+
+.packet-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.packet-travel-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.travel-svg {
+  width: 60px;
+  height: 18px;
+}
+
+.travel-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.hash-engine-block {
+  background: var(--bg-card);
+  border: 2px solid var(--accent-cyan);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-normal);
+}
+
+.hash-engine-block.engine-active {
+  box-shadow: 0 0 25px rgba(2, 132, 199, 0.4);
+  transform: scale(1.05);
+}
+
+.engine-gears {
+  font-size: 1.5rem;
+}
+
+.engine-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--accent-cyan);
+}
+
+.engine-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.hash-out-block {
+  background: var(--bg-card);
+  border: 2px solid var(--success-green);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Signing Flow */
+.signing-flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.signing-inputs-col {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flow-pill-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+}
+
+.flow-plus {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.signing-arrow-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.traveling-pulse {
+  width: 40px;
+  height: 4px;
+  background: var(--primary-blue);
+  border-radius: 2px;
+  animation: travelPulse 1s infinite;
+}
+
+.traveling-pulse.pulse-down {
+  animation: travelPulseDown 1s infinite;
+}
+
+@keyframes travelPulse {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.5); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes travelPulseDown {
+  0%, 100% { opacity: 0.3; transform: translateY(-5px); }
+  50% { opacity: 1; transform: translateY(5px); }
+}
+
+.channel-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.signing-core-engine {
+  background: var(--bg-card);
+  border: 2px solid #7e22ce;
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-normal);
+}
+
+.signing-core-engine.core-active {
+  box-shadow: 0 0 30px rgba(126, 34, 206, 0.4);
+  transform: scale(1.05);
+}
+
+.core-logo {
+  font-size: 2rem;
+}
+
+.core-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #7e22ce;
+}
+
+.core-math {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.signing-output-pill {
+  background: var(--success-bg);
+  border: 2px solid var(--success-green);
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--success-green);
+}
+
+/* Checklist Items */
+.sign-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.sc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.sc-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sc-icon.sc-pending {
+  color: var(--text-muted);
+}
+
+.sc-icon.sc-check {
+  background: var(--success-bg);
+  color: var(--success-green);
+}
+
+/* Verification Flow */
+.verify-flow-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.verify-inputs-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.verify-input-node {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.v-icon {
+  font-size: 1.3rem;
+}
+
+.v-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.v-status-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  background: var(--bg-subtle);
+  border-radius: 4px;
+}
+
+.verify-plus {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.verify-arrow-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+}
+
+.verify-computation-box {
+  background: var(--bg-card);
+  border: 2px solid var(--success-green);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-normal);
+}
+
+.verify-computation-box.calc-active {
+  box-shadow: 0 0 30px rgba(5, 150, 105, 0.4);
+  transform: scale(1.05);
+}
+
+.v-calc-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--success-green);
+}
+
+.v-calc-math {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 /* Key Displays */
