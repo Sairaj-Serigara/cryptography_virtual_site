@@ -972,14 +972,14 @@
             <div class="p-arrow">➔</div>
             <div class="pipeline-step" id="p-step-4">
               <span class="p-num">4</span>
-              <span class="p-name">Verification</span>
-              <span class="p-sub">(Press Fourth)</span>
+              <span class="p-name">Transmission</span>
+              <span class="p-sub">(Automatic)</span>
             </div>
             <div class="p-arrow">➔</div>
             <div class="pipeline-step" id="p-step-5">
               <span class="p-num">5</span>
-              <span class="p-name">Tamper Test</span>
-              <span class="p-sub">(Press Fifth)</span>
+              <span class="p-name">Verification</span>
+              <span class="p-sub">(Press Fourth)</span>
             </div>
           </div>
 
@@ -1425,51 +1425,113 @@
               </div>
             </div>
 
-            <!-- IN-LINE CONNECTOR: STEP 3 -> STEP 4 & 5 -->
+            <!-- IN-LINE CONNECTOR: STEP 3 -> STEP 4 -->
             <div class="inline-connector" id="trans-3-4">
               <div class="connector-line"></div>
               <div class="connector-pill">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                <span>NEXT: Verify Signature with Public Key &amp; Test Message Tampering</span>
+                <span>NEXT: Transmit Message + Signature to Receiver</span>
               </div>
               <div class="connector-line"></div>
             </div>
 
             <!-- ==============================================
-                 STEP 4 & 5 IN LINE: VERIFICATION & TAMPER TEST
+                 STEP 4 IN LINE: TRANSMISSION (AUTOMATIC)
                  ============================================== -->
             <div class="inline-step-block" id="sim-step4-card">
               <div class="step-guide-bar">
-                <span class="step-number-pill">STEP 4 &amp; 5</span>
+                <span class="step-number-pill">STEP 4</span>
                 <div class="step-guide-title">
-                  <h3>Signature Verification &amp; Tamper Testing</h3>
-                  <span class="step-action-tag tag-fourth" id="tag-step4">▶ PRESS THIS FOURTH &amp; FIFTH</span>
+                  <h3>Transmission: Sender → Receiver</h3>
+                  <span class="step-action-tag tag-fourth" id="tag-step4">⚡ AUTOMATIC AFTER SIGNING</span>
                 </div>
-                <div class="btn-group-actions">
-                  <button id="verify-btn" class="action-btn success-action" disabled>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    <span>4. Verify Signature</span>
-                  </button>
-                  
-                  <button id="tamper-btn" class="action-btn danger-action" disabled>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                      <line x1="12" y1="9" x2="12" y2="13"></line>
-                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <span>5. Tamper Message</span>
-                  </button>
+              </div>
 
-                  <button id="revert-btn" class="action-btn secondary-action hidden">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="1 4 1 10 7 10"></polyline>
-                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                    </svg>
-                    <span>Revert to Original</span>
-                  </button>
+              <!-- Transmission Animation Stage -->
+              <div id="transmission-anim-stage" class="anim-stage hidden mt-3">
+                <div class="transmission-flow-visual">
+                  <div class="trans-side sender-side">
+                    <div class="trans-label">📤 SENDER</div>
+                    <div class="trans-packet">
+                      <span class="packet-icon">📄</span>
+                      <span class="packet-text">Original Message</span>
+                    </div>
+                    <div class="trans-packet">
+                      <span class="packet-icon">✍️</span>
+                      <span class="packet-text">Digital Signature</span>
+                    </div>
+                  </div>
+
+                  <div class="trans-arrow-channel">
+                    <div class="traveling-packets">
+                      <div class="packet-dot"></div>
+                      <div class="packet-dot" style="animation-delay: 0.2s;"></div>
+                    </div>
+                    <span class="channel-label">Network Transmission</span>
+                  </div>
+
+                  <div class="trans-side receiver-side">
+                    <div class="trans-label">📥 RECEIVER</div>
+                    <div class="trans-packet received">
+                      <span class="packet-icon">📄</span>
+                      <span class="packet-text">Received Message</span>
+                    </div>
+                    <div class="trans-packet received">
+                      <span class="packet-icon">✍️</span>
+                      <span class="packet-text">Digital Signature</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="transmission-success-notice" class="step-success-notices hidden mt-2">
+                  <div class="sn-row"><span class="sn-check">✓</span><span>Message and Digital Signature transmitted successfully from Sender to Receiver.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- IN-LINE CONNECTOR: STEP 4 -> STEP 5 -->
+            <div class="inline-connector" id="trans-4-5">
+              <div class="connector-line"></div>
+              <div class="connector-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span>NEXT: Receiver Verifies Signature (Can Edit Received Message)</span>
+              </div>
+              <div class="connector-line"></div>
+            </div>
+
+            <!-- ==============================================
+                 STEP 5 IN LINE: VERIFICATION
+                 ============================================== -->
+            <div class="inline-step-block" id="sim-step5-card">
+              <div class="step-guide-bar">
+                <span class="step-number-pill">STEP 5</span>
+                <div class="step-guide-title">
+                  <h3>Receiver: Verify Signature</h3>
+                  <span class="step-action-tag tag-fourth" id="tag-step5">▶ PRESS THIS FOURTH</span>
+                </div>
+                <button id="verify-btn" class="action-btn success-action" disabled>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <span>4. Verify Signature</span>
+                </button>
+              </div>
+
+              <!-- Receiver Message Input Area -->
+              <div class="message-input-area">
+                <label for="received-message-input" class="input-label">
+                  <span>Received Message (Editable by Receiver):</span>
+                  <span class="text-muted small" id="recv-msg-meta-chars">32 characters | 32 bytes</span>
+                </label>
+                <div class="textarea-wrap">
+                  <textarea id="received-message-input" rows="2" class="message-textarea" spellcheck="false">Hello, this is a secure message!</textarea>
+                </div>
+                <div class="preset-pills">
+                  <span class="preset-label">Test Tampering:</span>
+                  <button class="preset-btn" data-recv-preset="Hello, this is a hacked message!">Hacked Message</button>
+                  <button class="preset-btn" data-recv-preset="Hello, this is a tampered message!">Tampered Message</button>
+                  <button class="preset-btn" data-recv-preset="Hello, this is a modified message!">Modified Message</button>
                 </div>
               </div>
 
@@ -1484,11 +1546,14 @@
                   </div>
                 </div>
                 <div class="sign-checklist">
-                  <div class="sc-item" id="vc-1"><span class="sc-icon sc-pending">○</span><span>Message Received</span></div>
-                  <div class="sc-item" id="vc-2"><span class="sc-icon sc-pending">○</span><span>Generating SHA-256 Hash...</span></div>
-                  <div class="sc-item" id="vc-3"><span class="sc-icon sc-pending">○</span><span>Public Key Loaded</span></div>
-                  <div class="sc-item" id="vc-4"><span class="sc-icon sc-pending">○</span><span>Signature Loaded</span></div>
-                  <div class="sc-item" id="vc-5"><span class="sc-icon sc-pending">○</span><span>Validating Digital Signature...</span></div>
+                  <div class="sc-item" id="vc-1"><span class="sc-icon sc-pending">○</span><span>Original Message Sent</span></div>
+                  <div class="sc-item" id="vc-2"><span class="sc-icon sc-pending">○</span><span>Received Message Loaded</span></div>
+                  <div class="sc-item" id="vc-3"><span class="sc-icon sc-pending">○</span><span>Generating SHA-256 Hash...</span></div>
+                  <div class="sc-item" id="vc-4"><span class="sc-icon sc-pending">○</span><span>Public Key Loaded</span></div>
+                  <div class="sc-item" id="vc-5"><span class="sc-icon sc-pending">○</span><span>Digital Signature Loaded</span></div>
+                  <div class="sc-item" id="vc-6"><span class="sc-icon sc-pending">○</span><span>ECDSA Verification Engine</span></div>
+                  <div class="sc-item" id="vc-7"><span class="sc-icon sc-pending">○</span><span>Checking Integrity...</span></div>
+                  <div class="sc-item" id="vc-8"><span class="sc-icon sc-pending">○</span><span>Checking Authenticity...</span></div>
                 </div>
               </div>
 
@@ -1551,22 +1616,23 @@
                     <!-- Verification Report -->
                     <div class="vr-report">
                       <div class="vr-report-title">Verification Report</div>
-                      <div class="vr-row vr-pass" id="vr-1"><span class="vr-icon">✓</span><span>Message Received</span></div>
-                      <div class="vr-row vr-pass" id="vr-2"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated</span></div>
-                      <div class="vr-row vr-pass" id="vr-3"><span class="vr-icon">✓</span><span>Public Key Loaded</span></div>
-                      <div class="vr-row vr-pass" id="vr-4"><span class="vr-icon">✓</span><span>Signature Loaded</span></div>
-                      <div class="vr-row vr-pass" id="vr-5"><span class="vr-icon">✓</span><span>Signature Matches — $v = r$ confirmed</span></div>
+                      <div class="vr-row vr-pass" id="vr-1"><span class="vr-icon">✓</span><span>Original Message Sent</span></div>
+                      <div class="vr-row vr-pass" id="vr-2"><span class="vr-icon">✓</span><span>Received Message Loaded</span></div>
+                      <div class="vr-row vr-pass" id="vr-3"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated</span></div>
+                      <div class="vr-row vr-pass" id="vr-4"><span class="vr-icon">✓</span><span>Public Key Loaded</span></div>
+                      <div class="vr-row vr-pass" id="vr-5"><span class="vr-icon">✓</span><span>Digital Signature Loaded</span></div>
+                      <div class="vr-row vr-pass" id="vr-6"><span class="vr-icon">✓</span><span>Signature Verified Successfully</span></div>
                     </div>
 
                     <p class="result-desc mt-2">The received message has not been modified after signing. Mathematical equality $v = r$ was confirmed.</p>
                     <div class="guarantees-grid">
                       <div class="guarantee-chip">
                         <span class="g-icon">✅</span>
-                        <span><strong>Data Integrity:</strong> The message has NOT been altered in transit by even a single bit.</span>
+                        <span><strong>Integrity Status:</strong> The received message has NOT been modified after signing.</span>
                       </div>
                       <div class="guarantee-chip">
                         <span class="g-icon">✅</span>
-                        <span><strong>Authenticity &amp; Non-Repudiation:</strong> Only the possessor of Private Key $d$ could have created this signature.</span>
+                        <span><strong>Authenticity Status:</strong> The message was signed using the correct private key.</span>
                       </div>
                     </div>
                   </div>
@@ -1590,17 +1656,17 @@
                     <!-- Tamper Verification Report -->
                     <div class="vr-report tamper-report">
                       <div class="vr-report-title">Verification Report</div>
-                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Message Received</span></div>
-                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated (New Hash — Diverged from Original)</span></div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Received Message Loaded</span></div>
+                      <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>SHA-256 Hash Generated</span></div>
                       <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Public Key Loaded</span></div>
                       <div class="vr-row vr-pass"><span class="vr-icon">✓</span><span>Original Signature Loaded</span></div>
-                      <div class="vr-row vr-fail"><span class="vr-icon">✗</span><span>Signature Mismatch — $v \neq r$, integrity check failed</span></div>
+                      <div class="vr-row vr-fail"><span class="vr-icon">✗</span><span>Signature Verification Failed</span></div>
                     </div>
 
-                    <p class="result-desc mt-2">The message has been modified after signing. Therefore the generated hash no longer matches the original digital signature.</p>
+                    <p class="result-desc mt-2">The received message was modified after it was digitally signed.</p>
                     <div class="tamper-explanation-box">
-                      <div class="tamper-alert-title">🚨 Cryptographic Tamper Analysis:</div>
-                      <p>Because the message was altered, SHA-256 produced a drastically different digest ($e_{\text{new}} \ne e_{\text{original}}$). This caused the scalar $u_1 = e \cdot w \bmod n$ to land on an entirely different point on the elliptic curve. The mathematical equation $u_1 G + u_2 Q = k G$ broke down completely, and the verifier instantly rejected the forged payload!</p>
+                      <div class="tamper-alert-title">🚨 Reason:</div>
+                      <p>The received message was modified after it was digitally signed. The SHA-256 hash generated from the modified message is different from the original hash that was signed. Therefore, the original digital signature is no longer valid.</p>
                     </div>
                   </div>
 
@@ -1692,6 +1758,25 @@
                       <div class="conclusion-text" id="conclusion-text">--</div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <!-- Visual Comparison Panel -->
+              <div id="visual-comparison-panel" class="visual-comparison-panel hidden mt-4">
+                <h4 class="comparison-title">🔍 Visual Message Comparison</h4>
+                <div class="comparison-grid">
+                  <div class="comparison-col sender-col">
+                    <div class="comparison-col-head text-primary">Sender's Original Message</div>
+                    <div class="comparison-msg" id="comparison-original">--</div>
+                  </div>
+                  <div class="comparison-col receiver-col">
+                    <div class="comparison-col-head text-primary">Receiver's Current Message</div>
+                    <div class="comparison-msg" id="comparison-received">--</div>
+                  </div>
+                </div>
+                <div class="comparison-note">
+                  <span class="note-icon">💡</span>
+                  <span>This comparison is for educational demonstration only. Highlighted words indicate differences between original and received messages.</span>
                 </div>
               </div>
 

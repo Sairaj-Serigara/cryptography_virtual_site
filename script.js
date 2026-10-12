@@ -17,15 +17,16 @@ const state = {
   isPrivateKeyMasked: true,
   originalMessage: 'Hello, this is a secure message!',
   currentMessage: 'Hello, this is a secure message!',
+  receivedMessage: 'Hello, this is a secure message!',
   originalHashHex: '',
   currentHashHex: '',
   signingHashHex: '', // Hash generated during signing
+  verifyHashHex: '', // Hash generated during verification
   signatureBuffer: null,
   signatureHex: '',
   sigRHex: '',
   sigSHex: '',
   currentStep: 1, // 1: Keygen, 2: Hash, 3: Sign, 4: Verify
-  isTampered: false
 };
 
 // ==============================================================================
@@ -309,19 +310,19 @@ function updateStepper(step) {
     } else if (step === 3) {
       guideText.innerHTML = '<strong>Step 3 of 5:</strong> Hash digest ready! Press <strong>"3. Sign Message"</strong> to generate ECDSA signature.';
     } else if (step === 4) {
-      guideText.innerHTML = '<strong>Step 4 of 5:</strong> Signature created! Press <strong>"4. Verify Signature"</strong> to verify authenticity.';
+      guideText.innerHTML = '<strong>Step 4 of 5:</strong> Transmission complete! Press <strong>"4. Verify Signature"</strong> to verify authenticity.';
     } else if (step === 5) {
-      guideText.innerHTML = '<strong>Step 5 of 5:</strong> Signature verified authentic! Now press <strong>"5. Tamper Message"</strong> to test integrity rejection.';
+      guideText.innerHTML = '<strong>Step 5 of 5:</strong> Verification complete! You can edit the Received Message to test tampering detection.';
     }
   }
 
   // 3. Highlight the Active In-Line Step Block
-  const blockIds = ['sim-step1-card', 'sim-step2-card', 'sim-step3-card', 'sim-step4-card'];
+  const blockIds = ['sim-step1-card', 'sim-step2-card', 'sim-step3-card', 'sim-step4-card', 'sim-step5-card'];
   blockIds.forEach((id, idx) => {
     const block = document.getElementById(id);
     if (!block) return;
-    const blockStep = idx === 3 ? 4 : idx + 1;
-    if (step === blockStep || (step >= 4 && idx === 3)) {
+    const blockStep = idx + 1;
+    if (step === blockStep) {
       block.classList.add('active-focus');
     } else {
       block.classList.remove('active-focus');
@@ -334,7 +335,7 @@ function updateStepper(step) {
     2: document.getElementById('hash-msg-btn'),
     3: document.getElementById('sign-msg-btn'),
     4: document.getElementById('verify-btn'),
-    5: document.getElementById('tamper-btn')
+    5: null // Step 5 is verification complete, no button to pulse
   };
 
   Object.keys(btnMap).forEach(key => {
@@ -757,16 +758,20 @@ async function signMessage() {
     await sleep(300);
     successNotice.classList.remove('hidden');
 
-    // Enable Verification & Tamper Buttons
+    // Enable Verification Button
     document.getElementById('verify-btn').disabled = false;
-    document.getElementById('tamper-btn').disabled = false;
 
     // Light up visual pipeline step 4
     lightUpPipelineStep(4);
 
     updateStepper(4);
-    updateBenchStatus('Digital Signature Generated! Ready to perform Verification or Tamper Test.', 'ready');
+    updateBenchStatus('Digital Signature Generated! Transmitting to Receiver...', 'ready');
     showToast('ECDSA Digital Signature generated successfully!', 'success');
+
+    // Automatically trigger transmission animation
+    await sleep(500);
+    await animateTransmission();
+    updateBenchStatus('Transmission Complete. Ready to Verify Signature.', 'ready');
 
   } catch (error) {
     console.error('Signing Error:', error);
@@ -776,6 +781,35 @@ async function signMessage() {
   } finally {
     signBtn.disabled = false;
   }
+}
+
+/**
+ * Animate transmission from Sender to Receiver
+ */
+async function animateTransmission() {
+  const transAnimStage = document.getElementById('transmission-anim-stage');
+  const transSuccessNotice = document.getElementById('transmission-success-notice');
+  
+  transAnimStage.classList.remove('hidden');
+  
+  // Animate for 2 seconds
+  await sleep(2000);
+  
+  transSuccessNotice.classList.remove('hidden');
+  
+  // Copy original message to received message
+  state.receivedMessage = state.currentMessage;
+  const recvMsgInput = document.getElementById('received-message-input');
+  if (recvMsgInput) {
+    recvMsgInput.value = state.receivedMessage;
+  }
+  
+  // Light up visual pipeline step 5
+  lightUpPipelineStep(5);
+  
+  await sleep(1000);
+  
+  logTerminal('Message and Digital Signature transmitted from Sender to Receiver.', 'success');
 }
 
 /**
@@ -797,17 +831,17 @@ function populateVerificationEvidencePanel(isValid) {
 
   // Populate message comparison
   senderMsg.textContent = state.originalMessage;
-  receiverMsg.textContent = state.currentMessage;
-  
-  const messagesMatch = state.originalMessage === state.currentMessage;
+  receiverMsg.textContent = state.receivedMessage;
+
+  const messagesMatch = state.originalMessage === state.receivedMessage;
   msgStatus.textContent = messagesMatch ? 'MATCH' : 'MISMATCH';
   msgStatus.className = 'evidence-status ' + (messagesMatch ? 'match' : 'mismatch');
 
   // Populate hash comparison
   signingHash.textContent = state.signingHashHex || '--';
-  verifyHash.textContent = state.currentHashHex;
-  
-  const hashesMatch = state.signingHashHex === state.currentHashHex;
+  verifyHash.textContent = state.verifyHashHex || '--';
+
+  const hashesMatch = state.signingHashHex === state.verifyHashHex;
   hashStatus.textContent = hashesMatch ? 'MATCH' : 'MISMATCH';
   hashStatus.className = 'evidence-status ' + (hashesMatch ? 'match' : 'mismatch');
 
@@ -817,7 +851,7 @@ function populateVerificationEvidencePanel(isValid) {
 
   // Populate conclusion
   evidenceConclusion.classList.remove('valid', 'invalid');
-  
+
   if (isValid) {
     conclusionIcon.textContent = '✔';
     conclusionText.innerHTML = '<strong>Signature Valid:</strong> The received message has not been modified. The SHA-256 hash generated during verification matches the hash used during signing. The mathematical verification $v = r$ was confirmed using the public key, proving the signature was created by the legitimate private key holder.';
@@ -830,11 +864,49 @@ function populateVerificationEvidencePanel(isValid) {
 
   // Show the panel
   evidencePanel.classList.remove('hidden');
-  
+
+  // Show visual comparison panel
+  populateVisualComparisonPanel(messagesMatch);
+
   // Re-render MathJax if available
   if (window.MathJax && window.MathJax.typesetPromise) {
     window.MathJax.typesetPromise([evidenceConclusion]);
   }
+}
+
+/**
+ * Populate Visual Comparison Panel with highlighted differences
+ */
+function populateVisualComparisonPanel(messagesMatch) {
+  const comparisonPanel = document.getElementById('visual-comparison-panel');
+  const originalMsg = document.getElementById('comparison-original');
+  const receivedMsg = document.getElementById('comparison-received');
+
+  comparisonPanel.classList.remove('hidden');
+
+  if (messagesMatch) {
+    originalMsg.textContent = state.originalMessage;
+    receivedMsg.textContent = state.receivedMessage;
+  } else {
+    // Highlight differences
+    originalMsg.textContent = state.originalMessage;
+    receivedMsg.innerHTML = highlightDifferences(state.originalMessage, state.receivedMessage);
+  }
+}
+
+/**
+ * Highlight differences between two strings
+ */
+function highlightDifferences(original, received) {
+  const originalWords = original.split(' ');
+  const receivedWords = received.split(' ');
+
+  return receivedWords.map((word, index) => {
+    if (index < originalWords.length && word !== originalWords[index]) {
+      return `<span class="diff-highlight">${word}</span>`;
+    }
+    return word;
+  }).join(' ');
 }
 
 /**
@@ -866,24 +938,28 @@ async function verifySignature() {
     progressStage.classList.remove('hidden');
     animStage.classList.add('hidden');
     resultContainer.classList.add('hidden');
-    
-    msgTag.textContent = state.isTampered ? 'Tampered' : 'Original';
-    msgTag.style.color = state.isTampered ? 'var(--danger-red)' : 'var(--success-green)';
+
+    // Get received message from input
+    const recvMsgInput = document.getElementById('received-message-input');
+    state.receivedMessage = recvMsgInput ? recvMsgInput.value : state.receivedMessage;
 
     logTerminal('Invoking window.crypto.subtle.verify({ name: "ECDSA", hash: { name: "SHA-256" } }, publicKey, signature, data)...', 'info');
 
     // Animate verification checklist
     progTitle.textContent = 'Running Verification Engine...';
-    
-    const verifyItems = ['vc-1', 'vc-2', 'vc-3', 'vc-4', 'vc-5'];
+
+    const verifyItems = ['vc-1', 'vc-2', 'vc-3', 'vc-4', 'vc-5', 'vc-6', 'vc-7', 'vc-8'];
     const verifyTexts = [
-      'Message Received',
+      'Original Message Sent',
+      'Received Message Loaded',
       'Generating SHA-256 Hash...',
       'Public Key Loaded',
-      'Signature Loaded',
-      'Validating Digital Signature...'
+      'Digital Signature Loaded',
+      'ECDSA Verification Engine',
+      'Checking Integrity...',
+      'Checking Authenticity...'
     ];
-    
+
     for (let i = 0; i < verifyItems.length; i++) {
       const item = document.getElementById(verifyItems[i]);
       const icon = item.querySelector('.sc-icon');
@@ -892,11 +968,15 @@ async function verifySignature() {
       icon.textContent = '✓';
       progSub.textContent = verifyTexts[i];
       progBar.style.width = `${((i + 1) / verifyItems.length) * 100}%`;
-      await sleep(500);
+      await sleep(400);
     }
 
     const encoder = new TextEncoder();
-    const dataToVerify = encoder.encode(state.currentMessage);
+    const dataToVerify = encoder.encode(state.receivedMessage);
+
+    // Generate hash for received message for evidence panel
+    const receivedHashBuffer = await window.crypto.subtle.digest('SHA-256', dataToVerify);
+    state.verifyHashHex = bufferToHex(receivedHashBuffer);
 
     // REAL WEB CRYPTO API CALL
     const isValid = await window.crypto.subtle.verify(
@@ -929,7 +1009,7 @@ async function verifySignature() {
       updateBenchStatus('Signature Verified: AUTHENTIC (Valid Math v = r)', 'success');
       logTerminal('Signature Verification Result: VALID (v == r verified)', 'success');
       showToast('Signature Verified: AUTHENTIC & VALID!', 'success');
-      updateStepper(5); // Unlock and guide user to Step 5: Tamper Test
+      updateStepper(5);
       // Light up visual pipeline step 6
       lightUpPipelineStep(6);
     } else {
@@ -939,11 +1019,13 @@ async function verifySignature() {
       logTerminal('Signature Verification Result: INVALID (Integrity check failed)', 'error');
       showToast('Signature Invalid: Tampering Detected!', 'error');
 
+      // Light up visual pipeline step 7 (rejected)
+      lightUpPipelineStep(7);
+
       const guideText = document.getElementById('master-guide-text');
       if (guideText) {
-        guideText.innerHTML = '<strong>⚠️ Tampering Detected:</strong> Signature rejected ($v \\ne r$)! Press <strong>"Revert to Original"</strong> to restore valid state.';
+        guideText.innerHTML = '<strong>⚠️ Tampering Detected:</strong> Signature rejected ($v \\ne r$)! Edit the Received Message to restore valid state.';
       }
-      document.getElementById('revert-btn')?.classList.add('pulse-attention');
     }
 
   } catch (error) {
@@ -957,92 +1039,7 @@ async function verifySignature() {
 }
 
 /**
- * STEP 6: Tamper Test - Inject intentional modification into message
- */
-async function tamperMessage() {
-  const msgInput = document.getElementById('message-input');
-  const tamperBtn = document.getElementById('tamper-btn');
-  const revertBtn = document.getElementById('revert-btn');
-  const diffPanel = document.getElementById('tamper-diff-panel');
-  const origHashEl = document.getElementById('diff-orig-hash');
-  const tampHashEl = document.getElementById('diff-tamp-hash');
-
-  const tamperedText = 'Hello, this is a tampered message!';
-  
-  // Animate the tampering
-  msgInput.value = tamperedText;
-  msgInput.style.backgroundColor = 'var(--danger-bg)';
-  await sleep(300);
-  msgInput.style.backgroundColor = '';
-  
-  state.currentMessage = tamperedText;
-  state.isTampered = true;
-
-  updateMessageMeta();
-
-  logTerminal('⚠️ INJECTING MESSAGE TAMPERING ATTACK...', 'warning');
-  logTerminal(`Message altered: "${state.originalMessage}" -> "${tamperedText}"`, 'warning');
-
-  // Compute new hash for the tampered message using Web Crypto API
-  const encoder = new TextEncoder();
-  const tamperedBuffer = await window.crypto.subtle.digest('SHA-256', encoder.encode(tamperedText));
-  const tamperedHash = bufferToHex(tamperedBuffer);
-  state.currentHashHex = tamperedHash;
-
-  // Update Diff Panel
-  origHashEl.textContent = state.originalHashHex || '464d6db81bf83505c21966a014902a2444390b1ec1895a04bb4954e3d36b7582';
-  tampHashEl.textContent = tamperedHash;
-  diffPanel.classList.remove('hidden');
-
-  // Show Revert Button
-  revertBtn.classList.remove('hidden');
-  tamperBtn.disabled = true;
-
-  showToast('Message altered! Notice the Avalanche Shift in SHA-256 digest.', 'error');
-
-  // Light up visual pipeline step 5 (transmit tampered)
-  lightUpPipelineStep(5);
-
-  // Automatically trigger verification to illustrate instantaneous failure
-  await sleep(500);
-  await verifySignature();
-  
-  // Light up visual pipeline step 7 (rejected)
-  lightUpPipelineStep(7);
-}
-
-/**
- * Revert Tampered Message back to Original
- */
-async function revertMessage() {
-  const msgInput = document.getElementById('message-input');
-  const tamperBtn = document.getElementById('tamper-btn');
-  const revertBtn = document.getElementById('revert-btn');
-  const diffPanel = document.getElementById('tamper-diff-panel');
-  const evidencePanel = document.getElementById('verification-evidence-panel');
-
-  msgInput.value = state.originalMessage;
-  state.currentMessage = state.originalMessage;
-  state.isTampered = false;
-
-  updateMessageMeta();
-  diffPanel.classList.add('hidden');
-  evidencePanel.classList.add('hidden');
-  revertBtn.classList.add('hidden');
-  revertBtn.classList.remove('pulse-attention');
-  tamperBtn.disabled = false;
-
-  logTerminal(`Reverted message payload back to original: "${state.originalMessage}"`, 'info');
-  showToast('Reverted to original authenticated message.', 'info');
-
-  // Re-hash and re-verify
-  await generateSha256Digest(true);
-  await verifySignature();
-  updateStepper(5);
-}
-
-/**
- * STEP 7: Reset All Simulation State
+ * STEP 6: Reset All Simulation State
  */
 function resetSimulation() {
   state.keyPair = null;
@@ -1053,28 +1050,31 @@ function resetSimulation() {
   state.isPrivateKeyMasked = true;
   state.originalMessage = 'Hello, this is a secure message!';
   state.currentMessage = 'Hello, this is a secure message!';
+  state.receivedMessage = 'Hello, this is a secure message!';
   state.originalHashHex = '';
   state.currentHashHex = '';
   state.signingHashHex = '';
+  state.verifyHashHex = '';
   state.signatureBuffer = null;
   state.signatureHex = '';
   state.sigRHex = '';
   state.sigSHex = '';
   state.currentStep = 1;
-  state.isTampered = false;
 
   // Reset Input & Display Fields
   const msgInput = document.getElementById('message-input');
   if (msgInput) msgInput.value = state.originalMessage;
+  const recvMsgInput = document.getElementById('received-message-input');
+  if (recvMsgInput) recvMsgInput.value = state.originalMessage;
   updateMessageMeta();
 
-  document.getElementById('priv-key-hex').textContent = 'Awaiting Key Generation... Click "Generate Key Pair"';
+  document.getElementById('priv-key-hex').textContent = 'Awaiting Key Generation... Click "1. Generate Key Pair"';
   document.getElementById('priv-key-hex').classList.remove('masked');
-  document.getElementById('pub-key-hex').textContent = 'Awaiting Key Generation... Click "Generate Key Pair"';
+  document.getElementById('pub-key-hex').textContent = 'Awaiting Key Generation... Click "1. Generate Key Pair"';
   document.getElementById('pub-x-hex').textContent = '--';
   document.getElementById('pub-y-hex').textContent = '--';
-  document.getElementById('hash-hex-display').textContent = 'Awaiting Hash Generation... Click "Hash Message" or "Sign Message"';
-  document.getElementById('full-sig-hex').textContent = 'Awaiting Signature Generation... Click "Sign Message"';
+  document.getElementById('hash-hex-display').textContent = 'Awaiting Hash Generation... Click "2. Hash Message"';
+  document.getElementById('full-sig-hex').textContent = 'Awaiting Signature Generation... Click "3. Sign Message"';
   document.getElementById('sig-r-hex').textContent = '--';
   document.getElementById('sig-s-hex').textContent = '--';
 
@@ -1085,12 +1085,14 @@ function resetSimulation() {
   document.getElementById('hash-progress-stage')?.classList.add('hidden');
   document.getElementById('signing-anim-stage')?.classList.add('hidden');
   document.getElementById('sign-progress-stage')?.classList.add('hidden');
+  document.getElementById('transmission-anim-stage')?.classList.add('hidden');
   document.getElementById('verify-anim-stage')?.classList.add('hidden');
   document.getElementById('verify-progress-stage')?.classList.add('hidden');
   document.getElementById('verification-result-box')?.classList.add('hidden');
   document.getElementById('result-valid')?.classList.add('hidden');
   document.getElementById('result-invalid')?.classList.add('hidden');
   document.getElementById('verification-evidence-panel')?.classList.add('hidden');
+  document.getElementById('visual-comparison-panel')?.classList.add('hidden');
   document.getElementById('tamper-diff-panel')?.classList.add('hidden');
   document.getElementById('revert-btn')?.classList.add('hidden');
 
@@ -1099,7 +1101,6 @@ function resetSimulation() {
   document.getElementById('hash-msg-btn').disabled = true;
   document.getElementById('sign-msg-btn').disabled = true;
   document.getElementById('verify-btn').disabled = true;
-  document.getElementById('tamper-btn').disabled = true;
 
   // Reset Eye icons
   document.getElementById('eye-open-icon').style.display = 'none';
@@ -1253,9 +1254,24 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('hash-msg-btn')?.addEventListener('click', () => generateSha256Digest(false));
   document.getElementById('sign-msg-btn')?.addEventListener('click', signMessage);
   document.getElementById('verify-btn')?.addEventListener('click', verifySignature);
-  document.getElementById('tamper-btn')?.addEventListener('click', tamperMessage);
-  document.getElementById('revert-btn')?.addEventListener('click', revertMessage);
   document.getElementById('reset-sim-btn')?.addEventListener('click', resetSimulation);
+
+  // Received Message Textarea input listener
+  const recvMsgInput = document.getElementById('received-message-input');
+  recvMsgInput?.addEventListener('input', () => {
+    state.receivedMessage = recvMsgInput.value;
+  });
+
+  // Tamper Preset Buttons for Receiver
+  document.querySelectorAll('.preset-btn[data-recv-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = btn.getAttribute('data-recv-preset');
+      if (recvMsgInput) {
+        recvMsgInput.value = preset;
+        state.receivedMessage = preset;
+      }
+    });
+  });
 
   // Copy Buttons
   document.getElementById('copy-priv-btn')?.addEventListener('click', () => {
