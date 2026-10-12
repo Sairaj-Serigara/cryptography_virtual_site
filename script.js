@@ -19,6 +19,7 @@ const state = {
   currentMessage: 'Hello, this is a secure message!',
   originalHashHex: '',
   currentHashHex: '',
+  signingHashHex: '', // Hash generated during signing
   signatureBuffer: null,
   signatureHex: '',
   sigRHex: '',
@@ -731,6 +732,7 @@ async function signMessage() {
     state.sigRHex = bufferToHex(rBytes);
     state.sigSHex = bufferToHex(sBytes);
     state.signatureHex = bufferToHex(sigArray);
+    state.signingHashHex = state.currentHashHex; // Store hash used during signing
 
     logTerminal(`Ephemeral Scalar k generated; computed r = (kG)_x mod n: [${truncateHex(state.sigRHex, 8, 8)}]`, 'success');
     logTerminal(`Computed s = k⁻¹(e + dr) mod n: [${truncateHex(state.sigSHex, 8, 8)}]`, 'success');
@@ -773,6 +775,65 @@ async function signMessage() {
     updateBenchStatus('Signing Error', 'error');
   } finally {
     signBtn.disabled = false;
+  }
+}
+
+/**
+ * Populate Verification Evidence Panel with actual cryptographic values
+ */
+function populateVerificationEvidencePanel(isValid) {
+  const evidencePanel = document.getElementById('verification-evidence-panel');
+  const senderMsg = document.getElementById('evidence-sender-msg');
+  const receiverMsg = document.getElementById('evidence-receiver-msg');
+  const msgStatus = document.getElementById('evidence-msg-status');
+  const signingHash = document.getElementById('evidence-signing-hash');
+  const verifyHash = document.getElementById('evidence-verify-hash');
+  const hashStatus = document.getElementById('evidence-hash-status');
+  const pubkey = document.getElementById('evidence-pubkey');
+  const signature = document.getElementById('evidence-signature');
+  const conclusionIcon = document.getElementById('conclusion-icon');
+  const conclusionText = document.getElementById('conclusion-text');
+  const evidenceConclusion = document.getElementById('evidence-conclusion');
+
+  // Populate message comparison
+  senderMsg.textContent = state.originalMessage;
+  receiverMsg.textContent = state.currentMessage;
+  
+  const messagesMatch = state.originalMessage === state.currentMessage;
+  msgStatus.textContent = messagesMatch ? 'MATCH' : 'MISMATCH';
+  msgStatus.className = 'evidence-status ' + (messagesMatch ? 'match' : 'mismatch');
+
+  // Populate hash comparison
+  signingHash.textContent = state.signingHashHex || '--';
+  verifyHash.textContent = state.currentHashHex;
+  
+  const hashesMatch = state.signingHashHex === state.currentHashHex;
+  hashStatus.textContent = hashesMatch ? 'MATCH' : 'MISMATCH';
+  hashStatus.className = 'evidence-status ' + (hashesMatch ? 'match' : 'mismatch');
+
+  // Populate signature verification details
+  pubkey.textContent = truncateHex(state.publicKeyRawHex, 16, 16);
+  signature.textContent = `r: ${truncateHex(state.sigRHex, 8, 8)}, s: ${truncateHex(state.sigSHex, 8, 8)}`;
+
+  // Populate conclusion
+  evidenceConclusion.classList.remove('valid', 'invalid');
+  
+  if (isValid) {
+    conclusionIcon.textContent = '✔';
+    conclusionText.innerHTML = '<strong>Signature Valid:</strong> The received message has not been modified. The SHA-256 hash generated during verification matches the hash used during signing. The mathematical verification $v = r$ was confirmed using the public key, proving the signature was created by the legitimate private key holder.';
+    evidenceConclusion.classList.add('valid');
+  } else {
+    conclusionIcon.textContent = '❌';
+    conclusionText.innerHTML = '<strong>Signature Invalid:</strong> The received message has been modified. The SHA-256 hash generated during verification differs from the hash used during signing. This hash mismatch causes the mathematical verification to fail ($v \\neq r$), proving the signature does not match the tampered message.';
+    evidenceConclusion.classList.add('invalid');
+  }
+
+  // Show the panel
+  evidencePanel.classList.remove('hidden');
+  
+  // Re-render MathJax if available
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise([evidenceConclusion]);
   }
 }
 
@@ -858,6 +919,9 @@ async function verifySignature() {
     verifyCalcBox.classList.remove('calc-active');
 
     resultContainer.classList.remove('hidden');
+
+    // Populate Verification Evidence Panel with actual values
+    populateVerificationEvidencePanel(isValid);
 
     if (isValid) {
       resultValid.classList.remove('hidden');
@@ -955,6 +1019,7 @@ async function revertMessage() {
   const tamperBtn = document.getElementById('tamper-btn');
   const revertBtn = document.getElementById('revert-btn');
   const diffPanel = document.getElementById('tamper-diff-panel');
+  const evidencePanel = document.getElementById('verification-evidence-panel');
 
   msgInput.value = state.originalMessage;
   state.currentMessage = state.originalMessage;
@@ -962,6 +1027,7 @@ async function revertMessage() {
 
   updateMessageMeta();
   diffPanel.classList.add('hidden');
+  evidencePanel.classList.add('hidden');
   revertBtn.classList.add('hidden');
   revertBtn.classList.remove('pulse-attention');
   tamperBtn.disabled = false;
@@ -989,6 +1055,7 @@ function resetSimulation() {
   state.currentMessage = 'Hello, this is a secure message!';
   state.originalHashHex = '';
   state.currentHashHex = '';
+  state.signingHashHex = '';
   state.signatureBuffer = null;
   state.signatureHex = '';
   state.sigRHex = '';
@@ -1013,12 +1080,17 @@ function resetSimulation() {
 
   // Hide Animation Stages & Results
   document.getElementById('keygen-anim-stage')?.classList.add('hidden');
+  document.getElementById('keygen-progress-stage')?.classList.add('hidden');
   document.getElementById('hash-anim-stage')?.classList.add('hidden');
+  document.getElementById('hash-progress-stage')?.classList.add('hidden');
   document.getElementById('signing-anim-stage')?.classList.add('hidden');
+  document.getElementById('sign-progress-stage')?.classList.add('hidden');
   document.getElementById('verify-anim-stage')?.classList.add('hidden');
+  document.getElementById('verify-progress-stage')?.classList.add('hidden');
   document.getElementById('verification-result-box')?.classList.add('hidden');
   document.getElementById('result-valid')?.classList.add('hidden');
   document.getElementById('result-invalid')?.classList.add('hidden');
+  document.getElementById('verification-evidence-panel')?.classList.add('hidden');
   document.getElementById('tamper-diff-panel')?.classList.add('hidden');
   document.getElementById('revert-btn')?.classList.add('hidden');
 

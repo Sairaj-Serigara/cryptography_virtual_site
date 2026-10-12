@@ -1608,6 +1608,93 @@
 
               </div>
 
+              <!-- Verification Evidence Panel -->
+              <div id="verification-evidence-panel" class="verification-evidence-panel hidden mt-4">
+                <h4 class="evidence-title">📋 Verification Evidence Report</h4>
+                
+                <div class="evidence-grid">
+                  <!-- Message Comparison Section -->
+                  <div class="evidence-section">
+                    <div class="evidence-section-header">
+                      <span class="evidence-icon">📄</span>
+                      <span class="evidence-section-title">Message Comparison</span>
+                    </div>
+                    <div class="evidence-comparison-row">
+                      <div class="evidence-col">
+                        <div class="evidence-label">Sender's Original Message</div>
+                        <div class="evidence-value" id="evidence-sender-msg">--</div>
+                      </div>
+                      <div class="evidence-divider">
+                        <div class="evidence-status" id="evidence-msg-status">--</div>
+                      </div>
+                      <div class="evidence-col">
+                        <div class="evidence-label">Receiver's Received Message</div>
+                        <div class="evidence-value" id="evidence-receiver-msg">--</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Hash Comparison Section -->
+                  <div class="evidence-section">
+                    <div class="evidence-section-header">
+                      <span class="evidence-icon">#️⃣</span>
+                      <span class="evidence-section-title">SHA-256 Hash Comparison</span>
+                    </div>
+                    <div class="evidence-comparison-row">
+                      <div class="evidence-col">
+                        <div class="evidence-label">Hash During Signing</div>
+                        <div class="evidence-value code-mono small" id="evidence-signing-hash">--</div>
+                      </div>
+                      <div class="evidence-divider">
+                        <div class="evidence-status" id="evidence-hash-status">--</div>
+                      </div>
+                      <div class="evidence-col">
+                        <div class="evidence-label">Hash During Verification</div>
+                        <div class="evidence-value code-mono small" id="evidence-verify-hash">--</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Signature Verification Section -->
+                  <div class="evidence-section">
+                    <div class="evidence-section-header">
+                      <span class="evidence-icon">🔍</span>
+                      <span class="evidence-section-title">Digital Signature Verification</span>
+                    </div>
+                    <div class="evidence-details">
+                      <div class="evidence-detail-row">
+                        <span class="detail-label">Public Key Used:</span>
+                        <span class="detail-value code-mono small" id="evidence-pubkey">--</span>
+                      </div>
+                      <div class="evidence-detail-row">
+                        <span class="detail-label">Signature (r, s):</span>
+                        <span class="detail-value code-mono small" id="evidence-signature">--</span>
+                      </div>
+                      <div class="evidence-detail-row">
+                        <span class="detail-label">Verification Algorithm:</span>
+                        <span class="detail-value">ECDSA with SHA-256 over NIST P-256</span>
+                      </div>
+                      <div class="evidence-detail-row">
+                        <span class="detail-label">Mathematical Check:</span>
+                        <span class="detail-value">$$v = x_1 \bmod n$$ compared to $$r$$</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Final Conclusion -->
+                  <div class="evidence-section conclusion-section">
+                    <div class="evidence-section-header">
+                      <span class="evidence-icon">⚖️</span>
+                      <span class="evidence-section-title">Final Conclusion</span>
+                    </div>
+                    <div class="evidence-conclusion" id="evidence-conclusion">
+                      <div class="conclusion-icon" id="conclusion-icon">--</div>
+                      <div class="conclusion-text" id="conclusion-text">--</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Tamper Comparison Panel (Side-by-Side Hashes) -->
               <div id="tamper-diff-panel" class="tamper-diff-panel hidden mt-4">
                 <h4 class="diff-title">🔍 Side-by-Side Payload &amp; Hash Comparison</h4>
