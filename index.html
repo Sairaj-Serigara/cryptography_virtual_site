@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRYPTOLAB | Implementation of ECC-Based Digital Signature (ECDSA)</title>
+  
+  <!-- Google Fonts for Academic & Cryptographic Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- MathJax Configuration and Script for Mathematical Equations -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="light">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Top Institutional Bar (IIT / VTU Virtual Labs Portal Header) -->
+  <div class="gov-portal-bar">
+    <div class="gov-portal-inner">
+      <div class="gov-portal-left">
+        <span class="portal-emblem">🇮🇳</span>
+        <span class="portal-text">National Virtual Laboratory Network • Ministry of Education Initiative</span>
+      </div>
+      <div class="gov-portal-right">
+        <span class="lab-code-badge">EXP-CS-ECC04</span>
+        <span class="curriculum-tag">VTU & IIT Approved Curriculum</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Header & Navigation Bar -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="header-left">
+        <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle Navigation Sidebar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="brand-group">
+          <div class="shield-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+            <div class="shield-pulse"></div>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title-wrap">
+              <span class="brand-title">CRYPTOLAB</span>
+              <span class="brand-badge">V-LAB 2.0</span>
+            </div>
+            <p class="brand-subtitle">Implementation of ECC-Based Digital Signature (ECDSA)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-specs">
+          <span class="spec-pill"><span class="dot-live"></span> Web Crypto API</span>
+          <span class="spec-pill">NIST P-256</span>
+          <span class="spec-pill">SHA-256</span>
+        </div>
+
+        <!-- Dark / Light Mode Switcher -->
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle Light/Dark Theme" title="Toggle Theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="21" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Launch Simulation Primary Button -->
+        <button id="launch-sim-btn" class="launch-btn" title="Launch Interactive ECDSA Simulation">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="play-icon">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>Launch Simulation</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Wrapper -->
+  <div class="app-layout">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>LAB SECTIONS</span>
+        </div>
+        <span class="active-count">7 Modules</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <button class="nav-link active" data-section="aim">
+              <span class="nav-num">01</span>
+              <span class="nav-text">Aim</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-section="theory">
+              <span class="nav-num">02</span>
+              <span class="nav-text">Theory</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-section="objective">
+              <span class="nav-num">03</span>
+              <span class="nav-text">Objective</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-section="procedure">
+              <span class="nav-num">04</span>
+              <span class="nav-text">Procedure</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link highlight-sim" data-section="simulation">
+              <span class="nav-num">05</span>
+              <span class="nav-text">Simulation</span>
+              <span class="sim-live-chip">LIVE</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-section="conclusion">
+              <span class="nav-num">06</span>
+              <span class="nav-text">Conclusion</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-section="references">
+              <span class="nav-num">07</span>
+              <span class="nav-text">References</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Sidebar Status & Progress Card -->
+      <div class="sidebar-status-box">
+        <div class="status-box-header">
+          <span class="status-dot"></span>
+          <span class="status-label">Engine Ready</span>
+        </div>
+        <p class="status-desc">Native Browser Web Crypto Engine initialized for NIST P-256 operations.</p>
+        <div class="progress-wrap">
+          <div class="progress-info">
+            <span>Simulation State</span>
+            <span id="sim-state-percent">Step 1/7</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="sim-progress-bar" class="progress-bar-fill" style="width: 14%;"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop for Mobile Screens -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Main Content Area (Single Page Application Containers) -->
+    <main class="content-stage">
+
+      <!-- ====================================================
+           SECTION 1: AIM
+           ==================================================== -->
+      <section id="section-aim" class="lab-section active">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">01</span> LAB AIM &amp; SCOPE</div>
+          <h1 class="section-title">Aim of the Experiment</h1>
+          <p class="section-intro">Comprehensive study, mathematical analysis, and practical execution of Elliptic Curve Digital Signature Algorithm (ECDSA) for asymmetric origin verification and integrity protection.</p>
+        </div>
+
+        <div class="cards-grid">
+          <div class="pro-card primary-card">
+            <div class="card-icon-title">
+              <div class="icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
+              <div>
+                <h2 class="card-title">Primary Statement of Aim</h2>
+                <span class="card-subtitle">Experiment Focus: Asymmetric Cryptography</span>
+              </div>
+            </div>
+            <div class="aim-statement-box">
+              <p>To implement, execute, and verify the <strong>Elliptic Curve Digital Signature Algorithm (ECDSA)</strong> using the <strong>NIST P-256 (secp256r1)</strong> elliptic curve and <strong>SHA-256 cryptographic hashing</strong> via the native browser <strong>Web Cryptography API</strong>.</p>
+              <p class="mt-2">The experiment aims to provide undergraduate and postgraduate engineering students with hands-on insight into <strong>private scalar generation</strong>, <strong>public point derivation ($Q = d \times G$)</strong>, <strong>ephemeral scalar signing</strong>, <strong>signature verification ($v \stackrel{?}{=} r$)</strong>, and the strict detection of message tampering (avalanche effect).</p>
+            </div>
+          </div>
+
+          <div class="pro-card">
+            <div class="card-icon-title">
+              <div class="icon-circle icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="card-title">Engineering Importance</h3>
+                <span class="card-subtitle">Why ECDSA over RSA?</span>
+              </div>
+            </div>
+            <ul class="styled-list">
+              <li><strong>Equivalent Security with Smaller Keys:</strong> A 256-bit ECC key offers the identical security margin of a 3072-bit RSA key, significantly reducing storage, battery, and transmission bandwidth.</li>
+              <li><strong>Real-World Standard:</strong> ECDSA powers Bitcoin and Ethereum blockchain transaction signing, Apple Secure Enclave, TLS 1.3 / HTTPS cipher suites, and modern military-grade digital identity cards.</li>
+              <li><strong>Non-Repudiation:</strong> Provides undeniable legal and cryptographic proof that a specific sender authorized a payload without exposing their secret signing key.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pro-card mt-4">
+          <h3 class="card-title mb-3">Experimental Scope &amp; Target Parameters</h3>
+          <div class="specs-table-wrapper">
+            <table class="specs-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Cryptographic Parameter</th>
+                  <th>Standard Specification</th>
+                  <th>Output Dimension</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Elliptic Curve</strong></td>
+                  <td>NIST P-256 / secp256r1</td>
+                  <td>Weierstrass Form: $y^2 \equiv x^3 - 3x + b \pmod p$</td>
+                  <td>256-bit Field Prime</td>
+                </tr>
+                <tr>
+                  <td><strong>Private Key ($d$)</strong></td>
+                  <td>Cryptographically Secure Random Scalar</td>
+                  <td>$d \in_R [1, n-1]$</td>
+                  <td>32 Bytes (64 Hex digits)</td>
+                </tr>
+                <tr>
+                  <td><strong>Public Key ($Q$)</strong></td>
+                  <td>Scalar Point Multiplication</td>
+                  <td>$Q = d \times G = (x_Q, y_Q)$</td>
+                  <td>65 Bytes Uncompressed (130 Hex)</td>
+                </tr>
+                <tr>
+                  <td><strong>Digest Engine</strong></td>
+                  <td>SHA-256 (FIPS 180-4)</td>
+                  <td>Merkle–Damgård 64-round Compression</td>
+                  <td>256 Bits (64 Hex digits)</td>
+                </tr>
+                <tr>
+                  <td><strong>Signature $(r, s)$</strong></td>
+                  <td>ECDSA IEEE P1363 / ANSI X9.62</td>
+                  <td>$r = (kG)_x \bmod n$, $s = k^{-1}(e + dr) \bmod n$</td>
+                  <td>64 Bytes (32B $r$ + 32B $s$)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 1 Navigation Footer -->
+        <div class="section-nav-footer">
+          <span></span>
+          <button class="sec-nav-btn next-btn" data-target="theory">
+            <span>Scroll to Section 02: Theory</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 2: THEORY
+           ==================================================== -->
+      <section id="section-theory" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">02</span> THEORETICAL FOUNDATIONS</div>
+          <h1 class="section-title">Cryptographic Theory of ECDSA</h1>
+          <p class="section-intro">Comprehensive, student-oriented mathematical engineering breakdown of Elliptic Curves, Group Law, Hash Digesting, and Asymmetric Signature Proofs.</p>
+        </div>
+
+        <!-- Theory Section Navigation Tabs -->
+        <div class="theory-nav-tabs">
+          <button class="theory-tab-btn active" data-theory-target="th-crypto">1. Cryptography &amp; Digital Signatures</button>
+          <button class="theory-tab-btn" data-theory-target="th-ecc">2. What is ECC &amp; ECDLP</button>
+          <button class="theory-tab-btn" data-theory-target="th-ecdsa">3. ECDSA Algorithm (Sign &amp; Verify)</button>
+          <button class="theory-tab-btn" data-theory-target="th-sha">4. SHA-256 &amp; Avalanche Effect</button>
+          <button class="theory-tab-btn" data-theory-target="th-benefits">5. Advantages &amp; Applications</button>
+        </div>
+
+        <!-- Theory Tab 1: Cryptography & Digital Signatures -->
+        <div id="th-crypto" class="theory-pane active">
+          <div class="cards-grid">
+            <div class="pro-card">
+              <h3 class="card-title text-primary">1.1 What is Cryptography?</h3>
+              <p>Cryptography is the scientific discipline of protecting digital information by transforming human-readable plaintext into unintelligible ciphertext and providing mathematical guarantees of security.</p>
+              
+              <div class="theory-highlight-box mt-3">
+                <strong>Core Security Pillars in Information Engineering:</strong>
+                <ul class="mini-list mt-2">
+                  <li><strong>Confidentiality:</strong> Ensuring that unauthorized observers cannot read the message payload.</li>
+                  <li><strong>Integrity:</strong> Guaranteeing that data has not been altered, deleted, or inserted during transit.</li>
+                  <li><strong>Authenticity:</strong> Verifying the genuine origin identity of the communicating entity.</li>
+                  <li><strong>Non-Repudiation:</strong> Ensuring that the author of an authorized message cannot successfully deny authoring it.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="pro-card">
+              <h3 class="card-title text-primary">1.2 Digital Signatures vs. Traditional MACs</h3>
+              <p>In symmetric Message Authentication Codes (e.g., HMAC), both Alice and Bob share the exact same key. If a dispute arises, Bob cannot prove to a judge that Alice sent the message, because Bob also possesses the key and could have forged it.</p>
+              
+              <div class="math-card mt-3">
+                <div class="math-title">Asymmetric Signature Principle</div>
+                <p>Digital signatures solve this using an asymmetric key pair:</p>
+                $$\text{Signature} = \operatorname{Sign}(K_{\text{private}}, \operatorname{Hash}(M))$$
+                $$\text{Validation} = \operatorname{Verify}(K_{\text{public}}, \operatorname{Hash}(M), \text{Signature}) \in \{\text{True}, \text{False}\}$$
+                <p class="small text-muted mt-2">Only the holder of $K_{\text{private}}$ can forge the signature, but <em>any entity</em> possessing $K_{\text{public}}$ can definitively verify its authenticity.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theory Tab 2: What is ECC & ECDLP -->
+        <div id="th-ecc" class="theory-pane">
+          <div class="pro-card mb-4">
+            <h3 class="card-title text-primary">2.1 What is Elliptic Curve Cryptography (ECC)?</h3>
+            <p>Elliptic Curve Cryptography is an approach to public-key cryptography based on the algebraic structure of elliptic curves over finite fields $\mathbb{F}_p$. In modern engineering, we use curves defined by the <strong>Short Weierstrass Equation</strong>:</p>
+
+            <div class="math-card text-center my-3">
+              $$y^2 \equiv x^3 + ax + b \pmod p$$
+              <p class="text-muted small">Where $a, b \in \mathbb{F}_p$ and the discriminant condition $4a^3 + 27b^2 \not\equiv 0 \pmod p$ ensures the curve is non-singular (contains no cusps or self-intersections).</p>
+            </div>
+
+            <div class="cards-grid mt-4">
+              <div class="sub-card">
+                <h4 class="sub-card-title">Point Addition $(P + Q = R)$</h4>
+                <p>Given two distinct points $P(x_1, y_1)$ and $Q(x_2, y_2)$ on the curve, the line through $P$ and $Q$ intersects the curve at a third point. Reflecting that point across the x-axis yields point $R = P + Q$:</p>
+                $$\lambda = \frac{y_2 - y_1}{x_2 - x_1} \pmod p$$
+                $$x_3 = \lambda^2 - x_1 - x_2 \pmod p, \quad y_3 = \lambda(x_1 - x_3) - y_1 \pmod p$$
+              </div>
+
+              <div class="sub-card">
+                <h4 class="sub-card-title">Point Doubling $(2P = R)$</h4>
+                <p>When adding a point to itself ($P = Q$), we take the tangent line to the curve at $P$:</p>
+                $$\lambda = \frac{3x_1^2 + a}{2y_1} \pmod p$$
+                $$x_3 = \lambda^2 - 2x_1 \pmod p, \quad y_3 = \lambda(x_1 - x_3) - y_1 \pmod p$$
+              </div>
+            </div>
+          </div>
+
+          <div class="cards-grid">
+            <div class="pro-card">
+              <h3 class="card-title text-primary">2.2 The Elliptic Curve Discrete Logarithm Problem (ECDLP)</h3>
+              <p>The entire security of ECC relies on the one-way nature of scalar multiplication:</p>
+              <div class="math-card my-3">
+                $$Q = d \times G = \underbrace{G + G + \dots + G}_{d \text{ times}}$$
+              </div>
+              <ul class="styled-list">
+                <li><strong>Easy Direction:</strong> Given scalar $d$ and base point $G$, calculating $Q$ takes only $O(\log_2 d)$ steps using the Double-and-Add algorithm.</li>
+                <li><strong>Hard Direction (ECDLP):</strong> Given public curve point $Q$ and generator $G$, computing scalar $d$ requires $O(\sqrt{n})$ operations via Pollard's Rho algorithm. For $n \approx 2^{256}$, this takes $\approx 2^{128}$ operations—impossible with all current world computing power combined!</li>
+              </ul>
+            </div>
+
+            <div class="pro-card">
+              <h3 class="card-title text-primary">2.3 NIST P-256 Curve Domain Parameters</h3>
+              <p>A standardized elliptic curve is defined by a 6-tuple $\mathcal{T} = (p, a, b, G, n, h)$:</p>
+              <div class="specs-table-wrapper mt-3">
+                <table class="specs-table">
+                  <tbody>
+                    <tr>
+                      <td><strong>Prime $p$</strong></td>
+                      <td>$2^{256} - 2^{224} + 2^{192} + 2^{96} - 1$ (Generalized Mersenne Prime)</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Coefficients</strong></td>
+                      <td>$a = -3$, $b \in \mathbb{F}_p$ as defined in FIPS 186-5</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Generator Point $G$</strong></td>
+                      <td>Fixed base curve point with coordinates $(G_x, G_y)$</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Order $n$</strong></td>
+                      <td>Prime number of points in the subgroup generated by $G$</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Cofactor $h$</strong></td>
+                      <td>$h = 1$ (every non-identity curve point generates the full group)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theory Tab 3: ECDSA Algorithm -->
+        <div id="th-ecdsa" class="theory-pane">
+          <div class="cards-grid">
+            <div class="pro-card primary-border">
+              <div class="badge-title">
+                <span class="step-num-badge">A</span>
+                <h3 class="card-title">ECDSA Signature Generation Algorithm</h3>
+              </div>
+              <p class="text-muted small mb-3">Executed by the Signer (Alice) using her Private Key $d$ and Message $m$:</p>
+
+              <ol class="algo-steps">
+                <li>
+                  <span class="algo-step-num">1</span>
+                  <div>
+                    <strong>Hash Message:</strong> Compute the cryptographic digest $e = \operatorname{SHA-256}(m)$. Convert $e$ to integer $z$.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">2</span>
+                  <div>
+                    <strong>Generate Ephemeral Scalar $k$:</strong> Select a cryptographically secure random integer $k \in [1, n-1]$.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">3</span>
+                  <div>
+                    <strong>Compute Curve Point:</strong> Perform scalar point multiplication:
+                    $$(x_1, y_1) = k \times G$$
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">4</span>
+                  <div>
+                    <strong>Calculate $r$:</strong>
+                    $$r = x_1 \bmod n$$
+                    If $r = 0$, pick another random $k$ and restart.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">5</span>
+                  <div>
+                    <strong>Calculate $s$:</strong> Compute the modular inverse $k^{-1} \bmod n$, then:
+                    $$s = k^{-1} (z + d \cdot r) \bmod n$$
+                    If $s = 0$, pick another random $k$ and restart.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">6</span>
+                  <div>
+                    <strong>Output Signature:</strong> The resulting digital signature is the pair <strong>$(r, s)$</strong>.
+                  </div>
+                </li>
+              </ol>
+
+              <div class="warning-callout mt-3">
+                <strong>Critical Engineering Warning (The Sony PS3 Flaw):</strong> The ephemeral key $k$ must NEVER be reused across two messages. If $k$ is repeated with private key $d$, an attacker can compute:
+                $$s_1 - s_2 = k^{-1}(z_1 - z_2) \implies k = \frac{z_1 - z_2}{s_1 - s_2} \bmod n \implies d = \frac{s_1 k - z_1}{r} \bmod n$$
+                This instantly leaks the private key $d$! RFC 6979 provides deterministic $k$ generation to prevent this catastrophe.
+              </div>
+            </div>
+
+            <div class="pro-card primary-border">
+              <div class="badge-title">
+                <span class="step-num-badge">B</span>
+                <h3 class="card-title">ECDSA Signature Verification Algorithm</h3>
+              </div>
+              <p class="text-muted small mb-3">Executed by any Verifier (Bob) using Alice's Public Key $Q$, Message $m$, and Signature $(r, s)$:</p>
+
+              <ol class="algo-steps">
+                <li>
+                  <span class="algo-step-num">1</span>
+                  <div>
+                    <strong>Range Verification:</strong> Confirm that integers $r$ and $s$ satisfy $1 \le r, s \le n-1$. If not, signature is immediately <strong>INVALID</strong>.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">2</span>
+                  <div>
+                    <strong>Hash Message:</strong> Compute digest $e = \operatorname{SHA-256}(m)$ and extract integer $z$.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">3</span>
+                  <div>
+                    <strong>Compute Modular Inverse:</strong>
+                    $$w = s^{-1} \bmod n$$
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">4</span>
+                  <div>
+                    <strong>Compute Intermediate Scalars:</strong>
+                    $$u_1 = z \cdot w \bmod n, \quad u_2 = r \cdot w \bmod n$$
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">5</span>
+                  <div>
+                    <strong>Compute Verification Point:</strong>
+                    $$(x_1, y_1) = u_1 \times G + u_2 \times Q$$
+                    If $(x_1, y_1) = \mathcal{O}$ (point at infinity), signature is <strong>INVALID</strong>.
+                  </div>
+                </li>
+                <li>
+                  <span class="algo-step-num">6</span>
+                  <div>
+                    <strong>Verify Equality:</strong> Compute $v = x_1 \bmod n$.
+                    $$\text{Result} = \begin{cases} \mathbf{VALID} & \text{if } v = r \\ \mathbf{INVALID} & \text{if } v \neq r \end{cases}$$
+                  </div>
+                </li>
+              </ol>
+
+              <div class="math-card mt-3">
+                <div class="math-title">Why Does Verification Work? (Mathematical Proof)</div>
+                <p>Since $s \equiv k^{-1}(z + dr) \pmod n$, rearranging gives $k \equiv s^{-1}(z + dr) \equiv z w + d r w \equiv u_1 + u_2 d \pmod n$.</p>
+                <p class="mt-1">Substituting into curve arithmetic:</p>
+                $$u_1 G + u_2 Q = u_1 G + u_2 (d G) = (u_1 + u_2 d) G = k G = (x_1, y_1)$$
+                <p class="small text-muted mt-2">Hence, the x-coordinate of the recovered curve point matches $r = x_1 \bmod n$ if and only if the private key and original message were genuine.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theory Tab 4: SHA-256 & Avalanche Effect -->
+        <div id="th-sha" class="theory-pane">
+          <div class="cards-grid">
+            <div class="pro-card">
+              <h3 class="card-title text-primary">4.1 Secure Hash Algorithm 256 (SHA-256)</h3>
+              <p>Signing large payloads directly with asymmetric scalar operations is computationally prohibitive. Therefore, ECDSA hashes the input payload into a 256-bit (32-byte) digest using SHA-256.</p>
+
+              <div class="theory-highlight-box mt-3">
+                <strong>Crucial Properties of SHA-256:</strong>
+                <ul class="mini-list mt-2">
+                  <li><strong>Deterministic:</strong> The exact same input string will always yield the exact same 64-hex-character digest.</li>
+                  <li><strong>Pre-image Resistance (One-Way):</strong> Given digest $H$, it is computationally impossible to determine input $M$ such that $\operatorname{SHA-256}(M) = H$.</li>
+                  <li><strong>Second Pre-image Resistance:</strong> Given $M_1$, it is infeasible to find $M_2 \neq M_1$ such that $\operatorname{SHA-256}(M_1) = \operatorname{SHA-256}(M_2)$.</li>
+                  <li><strong>Collision Resistance:</strong> Infeasible to find any two arbitrary messages with identical digests ($2^{128}$ complexity via birthday attack).</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="pro-card">
+              <h3 class="card-title text-primary">4.2 The Avalanche Effect in Digital Signatures</h3>
+              <p>A fundamental property of cryptographic hashes is the <strong>Avalanche Effect</strong>: changing as little as a single bit or character in the input message alters approximately 50% of the output bits completely pseudo-randomly.</p>
+              
+              <div class="avalanche-demo-box mt-3">
+                <div class="demo-row">
+                  <span class="demo-tag text-green">Original:</span>
+                  <code class="demo-code">Hello, this is a secure message!</code>
+                </div>
+                <div class="demo-hash">
+                  <code>464d6db81bf83505c21966a014902a2444390b1ec1895a04bb4954e3d36b7582</code>
+                </div>
+                <div class="demo-row mt-2">
+                  <span class="demo-tag text-red">Tampered:</span>
+                  <code class="demo-code">Hello, this is a tampered message!</code>
+                </div>
+                <div class="demo-hash">
+                  <code>34483a936a2eb6861501e4a6a12b4e5d666d63fbcc515a4aa311fbe4d95a975f</code>
+                </div>
+              </div>
+              <p class="small text-muted mt-2">Because the digest changes completely, $z_{\text{tampered}} \ne z_{\text{original}}$, the scalar $u_1 = z \cdot w \bmod n$ lands on a completely different curve coordinate, causing $v \neq r$ and immediately invalidating the signature.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theory Tab 5: Advantages & Applications -->
+        <div id="th-benefits" class="theory-pane">
+          <div class="cards-grid">
+            <div class="pro-card">
+              <h3 class="card-title text-primary">5.1 Advantages of ECDSA</h3>
+              <ul class="styled-list">
+                <li><strong>Compact Key &amp; Signature Sizes:</strong> 256-bit ECC key replaces 3072-bit RSA key. The signature is merely 64 bytes (compared to RSA's 384 bytes).</li>
+                <li><strong>Reduced Computation Overhead:</strong> Scalar point multiplication requires dramatically fewer clock cycles than 3072-bit modular exponentiation in RSA.</li>
+                <li><strong>Bandwidth &amp; Battery Conservation:</strong> Perfect for resource-constrained embedded systems, smart cards, satellite links, and mobile wallets.</li>
+                <li><strong>High Resistance to Known Quantum Attacks:</strong> While both RSA and ECC are vulnerable to Shor's algorithm on a large quantum computer, standard ECDSA on classical hardware offers superior security density per bit.</li>
+              </ul>
+            </div>
+
+            <div class="pro-card">
+              <h3 class="card-title text-primary">5.2 Real-World Engineering Applications</h3>
+              <ul class="styled-list">
+                <li><strong>Blockchain Protocols:</strong> Bitcoin (secp256k1) and Ethereum use ECDSA to sign transactions and authorize decentralized asset transfers.</li>
+                <li><strong>Transport Layer Security (TLS 1.3 / HTTPS):</strong> Modern web browsers and servers exchange ECDSA certificates for lightning-fast handshake authentication.</li>
+                <li><strong>OpenSSH &amp; Git Commit Signing:</strong> Developers use `ed25519` and `ecdsa-sha2-nistp256` keys to authenticate remote server access and verify git commits.</li>
+                <li><strong>Mobile Hardware Enclaves:</strong> Apple Secure Enclave and Android Keystore store ECDSA private keys in hardware-isolated silicon for biometric authentication.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="aim">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 01 Aim</span>
+          </button>
+          <button class="sec-nav-btn next-btn" data-target="objective">
+            <span>Scroll to Section 03: Objective</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 3: OBJECTIVE
+           ==================================================== -->
+      <section id="section-objective" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">03</span> LEARNING OUTCOMES</div>
+          <h1 class="section-title">Laboratory Objectives</h1>
+          <p class="section-intro">Measurable academic learning milestones categorized under Bloom's Taxonomy for cryptographic system engineering.</p>
+        </div>
+
+        <div class="objectives-grid">
+          <!-- Card 01 -->
+          <div class="obj-card">
+            <div class="obj-badge">01</div>
+            <div class="obj-content">
+              <span class="obj-tag">Cognitive: Understand</span>
+              <h3 class="obj-title">Understand ECC Mathematical Foundations</h3>
+              <p class="obj-desc">Analyze the Short Weierstrass elliptic curve equation over finite prime fields $\mathbb{F}_p$, geometric point addition, doubling, and the discrete logarithm hardness (ECDLP).</p>
+            </div>
+          </div>
+
+          <!-- Card 02 -->
+          <div class="obj-card">
+            <div class="obj-badge">02</div>
+            <div class="obj-content">
+              <span class="obj-tag">Practical: Generate</span>
+              <h3 class="obj-title">Generate Cryptographic NIST P-256 Key Pairs</h3>
+              <p class="obj-desc">Generate real, cryptographically secure 256-bit private scalar $d$ and derive uncompressed public key point $Q = d \times G$ using the native browser Web Cryptography API.</p>
+            </div>
+          </div>
+
+          <!-- Card 03 -->
+          <div class="obj-card">
+            <div class="obj-badge">03</div>
+            <div class="obj-content">
+              <span class="obj-tag">Analytical: Digest</span>
+              <h3 class="obj-title">Execute SHA-256 Message Digesting</h3>
+              <p class="obj-desc">Compute fixed-length 256-bit cryptographic digests of arbitrary textual messages and observe how variable-length data is normalized into an integer modular field.</p>
+            </div>
+          </div>
+
+          <!-- Card 04 -->
+          <div class="obj-card">
+            <div class="obj-badge">04</div>
+            <div class="obj-content">
+              <span class="obj-tag">Implementation: Sign</span>
+              <h3 class="obj-title">Compute ECDSA $(r, s)$ Digital Signatures</h3>
+              <p class="obj-desc">Execute the signing equation using ephemeral scalar $k$ and private key $d$, extracting distinct big-endian 32-byte $(r, s)$ coordinate components.</p>
+            </div>
+          </div>
+
+          <!-- Card 05 -->
+          <div class="obj-card">
+            <div class="obj-badge">05</div>
+            <div class="obj-content">
+              <span class="obj-tag">Evaluation: Verify</span>
+              <h3 class="obj-title">Perform Public Asymmetric Verification</h3>
+              <p class="obj-desc">Demonstrate how any recipient can verify message validity and sender identity using public key $Q$ without ever accessing the signer's private key $d$.</p>
+            </div>
+          </div>
+
+          <!-- Card 06 -->
+          <div class="obj-card">
+            <div class="obj-badge">06</div>
+            <div class="obj-content">
+              <span class="obj-tag">Security: Audit</span>
+              <h3 class="obj-title">Analyze Message Tampering &amp; Avalanche Effect</h3>
+              <p class="obj-desc">Subject digital signatures to active tampering attacks by modifying single characters and verifying the immediate cryptographic rejection by the verification engine.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="theory">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 02 Theory</span>
+          </button>
+          <button class="sec-nav-btn next-btn" data-target="procedure">
+            <span>Scroll to Section 04: Procedure</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 4: PROCEDURE
+           ==================================================== -->
+      <section id="section-procedure" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">04</span> LAB PROTOCOL</div>
+          <h1 class="section-title">Step-by-Step Laboratory Procedure</h1>
+          <p class="section-intro">Standard operating procedure for performing the ECDSA experiment in the Virtual Cryptography Laboratory.</p>
+        </div>
+
+        <div class="procedure-timeline">
+          
+          <!-- Step 1 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">1</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 1</span>
+                <h3 class="proc-title">Generate ECC Key Pair</h3>
+              </div>
+              <p class="proc-text">Initialize the native browser Web Cryptography API. Invoke <code>window.crypto.subtle.generateKey()</code> specifying algorithm <code>ECDSA</code> with named curve <code>P-256</code>. Extract the 256-bit random private key scalar $d$ and compute the public key point $Q = d \times G$ consisting of $(x_Q, y_Q)$ coordinates.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: NamedCurve "P-256", Usages: ["sign", "verify"]</span>
+                <span class="meta-tag">Outputs: CryptoKeyPair (Private Key $d$, Public Key $Q$)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">2</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 2</span>
+                <h3 class="proc-title">Enter Message</h3>
+              </div>
+              <p class="proc-text">Provide an arbitrary digital message or transaction text into the simulation input field. The default benchmark message is <code>Hello, this is a secure message!</code>. Encode the characters into UTF-8 byte stream using <code>TextEncoder()</code>.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: UTF-8 String</span>
+                <span class="meta-tag">Outputs: Uint8Array Buffer</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">3</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 3</span>
+                <h3 class="proc-title">Generate SHA-256 Hash</h3>
+              </div>
+              <p class="proc-text">Invoke <code>window.crypto.subtle.digest("SHA-256", messageBuffer)</code>. Observe the transformation of the variable-length UTF-8 payload into a fixed 256-bit (64-character hexadecimal) cryptographic digest $e$.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: Message Bytes</span>
+                <span class="meta-tag">Outputs: 32-Byte SHA-256 Digest ($e$)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">4</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 4</span>
+                <h3 class="proc-title">Generate Digital Signature</h3>
+              </div>
+              <p class="proc-text">Execute <code>window.crypto.subtle.sign()</code> with private key $d$ and hash $e$. The algorithm generates ephemeral key $k$, computes point $k \times G$, extracts $r = x_1 \bmod n$, and calculates $s = k^{-1}(e + dr) \bmod n$. Deconstruct the output into distinct 32-byte components $r$ and $s$.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: Private Key $d$, SHA-256 Hash $e$</span>
+                <span class="meta-tag">Outputs: IEEE P1363 Signature ($r \parallel s$)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">5</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 5</span>
+                <h3 class="proc-title">Verify Signature</h3>
+              </div>
+              <p class="proc-text">Execute <code>window.crypto.subtle.verify()</code> passing the original message bytes, public key $Q$, and signature $(r, s)$. Confirm that $u_1 G + u_2 Q$ lands on point $(x_1, y_1)$ with $x_1 \bmod n = r$, yielding <strong>Signature Verified (Valid)</strong> with a green indicator.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: Public Key $Q$, Message Bytes, Signature Buffer</span>
+                <span class="meta-tag">Outputs: Boolean Verification Result (true)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">6</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 6</span>
+                <h3 class="proc-title">Modify Message (Tamper Test)</h3>
+              </div>
+              <p class="proc-text">Inject an intentional message corruption by clicking "Tamper Message", altering the payload to <code>Hello, this is a tampered message!</code>. Observe the dramatic divergence in the SHA-256 hash output caused by the avalanche effect.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: Corrupted Payload String</span>
+                <span class="meta-tag">Outputs: Divergent Hash Digest</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="proc-step">
+            <div class="proc-marker">
+              <span class="proc-step-circle">7</span>
+              <div class="proc-line"></div>
+            </div>
+            <div class="proc-body pro-card">
+              <div class="proc-header">
+                <span class="proc-badge">Step 7</span>
+                <h3 class="proc-title">Verify Again &amp; Conclude</h3>
+              </div>
+              <p class="proc-text">Execute signature verification on the tampered message against the original signature. Observe the immediate failure: <strong>Signature Invalid (Rejected)</strong> with a red indicator. Reset the experiment to restart the cycle.</p>
+              <div class="proc-meta">
+                <span class="meta-tag">Inputs: Corrupted Message, Original Signature, Public Key</span>
+                <span class="meta-tag">Outputs: Boolean Verification Result (false)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 4 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="objective">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 03 Objective</span>
+          </button>
+          <button class="sec-nav-btn next-btn primary" data-target="simulation">
+            <span>Scroll to Section 05: Simulation Workbench</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 5: SIMULATION (THE CORE INTERACTIVE SIMULATOR)
+           ==================================================== -->
+      <section id="section-simulation" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">05</span> INTERACTIVE SIMULATION</div>
+          <h1 class="section-title">ECDSA Cryptographic Virtual Bench</h1>
+          <p class="section-intro">Fully animated, step-by-step cryptographic execution powered by the native browser Web Cryptography API. Every key, hash, and signature is mathematically calculated in real time.</p>
+        </div>
+
+        <!-- ====================================================
+             THE UNIFIED ALL-IN-ONE SIMULATION WORKBENCH BOX
+             ==================================================== -->
+        <div class="pro-card sim-master-box">
+
+          <!-- MASTER WORKBENCH HEADER -->
+          <div class="master-box-header">
+            <div class="master-header-left">
+              <div class="master-title-wrap">
+                <span class="master-badge">ALL-IN-ONE BENCH</span>
+                <h2 class="master-title">ECDSA Interactive Cryptographic Engine</h2>
+              </div>
+              <div class="master-guide-chip" id="master-action-guide">
+                <span class="guide-hand">👉</span>
+                <span class="guide-text" id="master-guide-text"><strong>Step 1 of 5:</strong> Press the blue <strong>"1. Generate Key Pair"</strong> button below to start.</span>
+              </div>
+            </div>
+
+            <div class="master-header-right">
+              <span class="status-indicator-pill" id="bench-status-pill">
+                <span class="indicator-led ready"></span>
+                <span id="bench-status-text">Ready to Begin: Generate ECC Key Pair</span>
+              </span>
+              <button id="reset-sim-btn" class="secondary-btn" title="Reset all simulator state">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                <span>Reset Bench</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- HORIZONTAL IN-LINE PIPELINE RIBBON -->
+          <div class="inline-pipeline-bar">
+            <div class="pipeline-step active" id="p-step-1">
+              <span class="p-num">1</span>
+              <span class="p-name">Key Generation</span>
+              <span class="p-sub">(Press First)</span>
+            </div>
+            <div class="p-arrow">➔</div>
+            <div class="pipeline-step" id="p-step-2">
+              <span class="p-num">2</span>
+              <span class="p-name">SHA-256 Hash</span>
+              <span class="p-sub">(Press Second)</span>
+            </div>
+            <div class="p-arrow">➔</div>
+            <div class="pipeline-step" id="p-step-3">
+              <span class="p-num">3</span>
+              <span class="p-name">ECDSA Signing</span>
+              <span class="p-sub">(Press Third)</span>
+            </div>
+            <div class="p-arrow">➔</div>
+            <div class="pipeline-step" id="p-step-4">
+              <span class="p-num">4</span>
+              <span class="p-name">Verification</span>
+              <span class="p-sub">(Press Fourth)</span>
+            </div>
+            <div class="p-arrow">➔</div>
+            <div class="pipeline-step" id="p-step-5">
+              <span class="p-num">5</span>
+              <span class="p-name">Tamper Test</span>
+              <span class="p-sub">(Press Fifth)</span>
+            </div>
+          </div>
+
+          <!-- IN-LINE STEPS CONTAINER (EVERYTHING IN ONE BOX IN LINE) -->
+          <div class="inline-steps-container">
+
+            <!-- ==============================================
+                 STEP 1 IN LINE: KEY GENERATION
+                 ============================================== -->
+            <div class="inline-step-block active-focus" id="sim-step1-card">
+              <div class="step-guide-bar">
+                <span class="step-number-pill">STEP 1</span>
+                <div class="step-guide-title">
+                  <h3>Generate ECC Key Pair (NIST P-256)</h3>
+                  <span class="step-action-tag tag-first" id="tag-step1">▶ PRESS THIS FIRST</span>
+                </div>
+                <button id="gen-keys-btn" class="action-btn primary-action pulse-attention">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 2l-2 2m-1-1l-3 3m2-2l2 2m-7 1a5 5 0 1 1-7 7 5 5 0 0 1 7-7zm-4 4l.01.01"></path>
+                  </svg>
+                  <span>1. Generate Key Pair</span>
+                </button>
+              </div>
+
+              <!-- Key Generation Animation Stage -->
+              <div id="keygen-anim-stage" class="anim-stage hidden">
+                <div class="keygen-flow-visual">
+                  <div class="flow-box flow-entropy">
+                    <div class="flow-icon">🎲</div>
+                    <div class="flow-text">Crypto Random Entropy</div>
+                    <div class="entropy-pulser"></div>
+                  </div>
+
+                  <div class="flow-arrow-wrap">
+                    <svg class="flow-arrow-svg" viewBox="0 0 60 24">
+                      <path d="M0 12 H50 M42 4 L50 12 L42 20" stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <span class="arrow-label">Scalar Selection</span>
+                  </div>
+
+                  <div class="flow-box flow-priv" id="flow-priv-box">
+                    <div class="flow-icon">🔐</div>
+                    <div class="flow-text">Private Key ($d$)</div>
+                    <div class="flow-sub">256-bit Random Scalar</div>
+                  </div>
+
+                  <div class="flow-arrow-wrap">
+                    <svg class="flow-arrow-svg" viewBox="0 0 60 24">
+                      <path d="M0 12 H50 M42 4 L50 12 L42 20" stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <span class="arrow-label math-label">$Q = d \times G$</span>
+                  </div>
+
+                  <div class="flow-box flow-pub" id="flow-pub-box">
+                    <div class="flow-icon">🌐</div>
+                    <div class="flow-text">Public Key ($Q$)</div>
+                    <div class="flow-sub">Point on Curve $\mathbb{F}_p$</div>
+                  </div>
+                </div>
+                
+                <div id="keygen-spinner-wrap" class="keygen-spinner-wrap hidden">
+                  <div class="crypto-ring-spinner"></div>
+                  <span class="spinner-text">Executing Scalar Point Multiplication on NIST P-256 Curve...</span>
+                </div>
+              </div>
+
+              <!-- Key Displays Area -->
+              <div class="keys-display-grid mt-4">
+                
+                <!-- Private Key Card -->
+                <div class="key-box">
+                  <div class="key-box-header">
+                    <div class="key-label-group">
+                      <span class="key-type-badge private">PRIVATE KEY (d)</span>
+                      <span class="key-dim">256-Bit Scalar (Keep Secret!)</span>
+                    </div>
+                    <div class="key-actions">
+                      <button id="toggle-priv-vis" class="icon-tool-btn" title="Toggle Private Key Visibility">
+                        <svg id="eye-open-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg id="eye-closed-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                          <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                      </button>
+                      <button id="copy-priv-btn" class="icon-tool-btn" title="Copy Private Key Hex">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="key-value-display">
+                    <span id="priv-key-hex" class="code-mono masked">Awaiting Key Generation... Click "1. Generate Key Pair"</span>
+                  </div>
+                  <div class="key-explanation">
+                    <span class="info-icon">💡</span>
+                    <span><strong>Concept:</strong> The Private Key is randomly generated. It is an integer scalar $d \in_R [1, n-1]$ chosen with true cryptographic entropy.</span>
+                  </div>
+                </div>
+
+                <!-- Public Key Card -->
+                <div class="key-box">
+                  <div class="key-box-header">
+                    <div class="key-label-group">
+                      <span class="key-type-badge public">PUBLIC KEY (Q)</span>
+                      <span class="key-dim">Uncompressed Curve Point ($04 \parallel X \parallel Y$)</span>
+                    </div>
+                    <div class="key-actions">
+                      <button id="copy-pub-btn" class="icon-tool-btn" title="Copy Public Key Hex">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="key-value-display">
+                    <span id="pub-key-hex" class="code-mono">Awaiting Key Generation... Click "1. Generate Key Pair"</span>
+                  </div>
+                  <div class="key-coords-tabs">
+                    <div class="coord-pill"><strong>X-Coord:</strong> <span id="pub-x-hex">--</span></div>
+                    <div class="coord-pill"><strong>Y-Coord:</strong> <span id="pub-y-hex">--</span></div>
+                  </div>
+                  <div class="key-explanation">
+                    <span class="info-icon">💡</span>
+                    <span><strong>Concept:</strong> The Public Key is mathematically derived from the Private Key via scalar multiplication $Q = d \times G$. It is shared freely with verifiers.</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- IN-LINE CONNECTOR: STEP 1 -> STEP 2 -->
+            <div class="inline-connector" id="trans-1-2">
+              <div class="connector-line"></div>
+              <div class="connector-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span>NEXT: Enter Message &amp; Generate SHA-256 Hash</span>
+              </div>
+              <div class="connector-line"></div>
+            </div>
+
+            <!-- ==============================================
+                 STEP 2 IN LINE: MESSAGE & SHA-256 HASH
+                 ============================================== -->
+            <div class="inline-step-block" id="sim-step2-card">
+              <div class="step-guide-bar">
+                <span class="step-number-pill">STEP 2</span>
+                <div class="step-guide-title">
+                  <h3>Message Input &amp; SHA-256 Cryptographic Hashing</h3>
+                  <span class="step-action-tag tag-second" id="tag-step2">▶ PRESS THIS SECOND</span>
+                </div>
+                <button id="hash-msg-btn" class="action-btn secondary-action" disabled>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                  </svg>
+                  <span>2. Hash Message (SHA-256)</span>
+                </button>
+              </div>
+
+              <div class="message-input-area">
+                <label for="message-input" class="input-label">
+                  <span>Message Payload ($m$):</span>
+                  <span class="text-muted small" id="msg-meta-chars">32 characters | 32 bytes</span>
+                </label>
+                <div class="textarea-wrap">
+                  <textarea id="message-input" rows="2" class="message-textarea" spellcheck="false">Hello, this is a secure message!</textarea>
+                </div>
+                <div class="preset-pills">
+                  <span class="preset-label">Test Samples:</span>
+                  <button class="preset-btn" data-preset="Hello, this is a secure message!">Default Message</button>
+                  <button class="preset-btn" data-preset="TRANSFER 15000 INR TO ACCT 987654321">Bank Transfer Payload</button>
+                  <button class="preset-btn" data-preset="SENSOR_STATUS: TEMP=24.5C, PRESSURE=1013hPa">IoT Telemetry Event</button>
+                </div>
+              </div>
+
+              <!-- Message Entering SHA-256 Visual Pipeline -->
+              <div id="hash-anim-stage" class="anim-stage hidden mt-3">
+                <div class="hash-pipeline-visual">
+                  <div class="packet-block" id="anim-msg-packet">
+                    <span class="packet-icon">📄</span>
+                    <span class="packet-label" id="anim-packet-text">"Hello, this is a secure message!"</span>
+                  </div>
+
+                  <div class="packet-travel-arrow">
+                    <svg viewBox="0 0 80 24" class="travel-svg">
+                      <path d="M0 12 H70 M60 4 L70 12 L60 20" stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <span class="travel-text">UTF-8 Stream</span>
+                  </div>
+
+                  <div class="hash-engine-block" id="hash-engine-box">
+                    <div class="engine-gears">
+                      <svg class="gear-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                      </svg>
+                    </div>
+                    <span class="engine-title">SHA-256 Block</span>
+                    <span class="engine-sub">Merkle–Damgård 64 Rounds</span>
+                  </div>
+
+                  <div class="packet-travel-arrow">
+                    <svg viewBox="0 0 80 24" class="travel-svg">
+                      <path d="M0 12 H70 M60 4 L70 12 L60 20" stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <span class="travel-text">256-Bit Digest</span>
+                  </div>
+
+                  <div class="hash-out-block">
+                    <span class="packet-icon">#️⃣</span>
+                    <span class="packet-label">Digest Output ($e$)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hash Output Display Box -->
+              <div class="hash-display-box mt-3">
+                <div class="key-box-header">
+                  <div class="key-label-group">
+                    <span class="key-type-badge hash">SHA-256 HASH DIGEST (e)</span>
+                    <span class="key-dim">256 Bits (64 Hex Characters)</span>
+                  </div>
+                  <button id="copy-hash-btn" class="icon-tool-btn" title="Copy Hash Hex">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="key-value-display">
+                  <span id="hash-hex-display" class="code-mono">Awaiting Hash Generation... Click "2. Hash Message"</span>
+                </div>
+                <div class="key-explanation">
+                  <span class="info-icon">💡</span>
+                  <span><strong>Concept:</strong> The message is first converted into a SHA-256 hash. This compresses any variable payload into an exact 32-byte integer used directly in curve scalar calculations.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IN-LINE CONNECTOR: STEP 2 -> STEP 3 -->
+            <div class="inline-connector" id="trans-2-3">
+              <div class="connector-line"></div>
+              <div class="connector-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span>NEXT: Combine Private Key &amp; Hash to Generate Signature</span>
+              </div>
+              <div class="connector-line"></div>
+            </div>
+
+            <!-- ==============================================
+                 STEP 3 IN LINE: GENERATE DIGITAL SIGNATURE
+                 ============================================== -->
+            <div class="inline-step-block" id="sim-step3-card">
+              <div class="step-guide-bar">
+                <span class="step-number-pill">STEP 3</span>
+                <div class="step-guide-title">
+                  <h3>Generate ECDSA Digital Signature</h3>
+                  <span class="step-action-tag tag-third" id="tag-step3">▶ PRESS THIS THIRD</span>
+                </div>
+                <button id="sign-msg-btn" class="action-btn primary-action" disabled>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                  </svg>
+                  <span>3. Sign Message</span>
+                </button>
+              </div>
+
+              <!-- Signing Architectural Animation Flow -->
+              <div id="signing-anim-stage" class="anim-stage hidden mt-3">
+                <div class="signing-flow-diagram">
+                  <div class="signing-inputs-col">
+                    <div class="flow-pill-item item-priv">
+                      <span class="pill-dot"></span>
+                      <span>Private Key ($d$)</span>
+                    </div>
+                    <div class="flow-plus">+</div>
+                    <div class="flow-pill-item item-hash">
+                      <span class="pill-dot"></span>
+                      <span>SHA-256 Hash ($e$)</span>
+                    </div>
+                    <div class="flow-plus">+</div>
+                    <div class="flow-pill-item item-k">
+                      <span class="pill-dot"></span>
+                      <span>Ephemeral Scalar ($k$)</span>
+                    </div>
+                  </div>
+
+                  <div class="signing-arrow-channel">
+                    <div class="traveling-pulse pulse-down"></div>
+                    <span class="channel-label">Fed into ECDSA Engine</span>
+                  </div>
+
+                  <div class="signing-core-engine" id="signing-core-box">
+                    <div class="core-logo">⚙️</div>
+                    <div class="core-title">ECDSA Algorithm Core</div>
+                    <div class="core-math">
+                      $$r = (k \times G)_x \bmod n$$
+                      $$s = k^{-1} (e + d \cdot r) \bmod n$$
+                    </div>
+                  </div>
+
+                  <div class="signing-arrow-channel">
+                    <div class="traveling-pulse pulse-down"></div>
+                    <span class="channel-label">Outputs Cryptographic Pair</span>
+                  </div>
+
+                  <div class="signing-output-pill">
+                    <span>Digital Signature $(r, s)$</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Signature Decomposition Breakdown (r, s, full hex) -->
+              <div class="signature-results-box mt-4">
+                <div class="key-box-header">
+                  <div class="key-label-group">
+                    <span class="key-type-badge signature">DIGITAL SIGNATURE OUTPUT</span>
+                    <span class="key-dim">IEEE P1363 Format: 64 Bytes (128 Hex Chars)</span>
+                  </div>
+                  <button id="copy-full-sig-btn" class="icon-tool-btn" title="Copy Full Signature Hex">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Full Signature Hex Display -->
+                <div class="key-value-display">
+                  <span id="full-sig-hex" class="code-mono">Awaiting Signature Generation... Click "3. Sign Message"</span>
+                </div>
+
+                <!-- Distinct r and s Component Boxes -->
+                <div class="rs-components-grid mt-3">
+                  <div class="sub-component-box">
+                    <div class="sub-comp-header">
+                      <span class="comp-label">Component $r$:</span>
+                      <span class="comp-sub">$(k \times G)_x \bmod n$ (32 Bytes / 64 Hex)</span>
+                      <button id="copy-r-btn" class="icon-mini-btn" title="Copy r">📋</button>
+                    </div>
+                    <div class="code-mono comp-val" id="sig-r-hex">--</div>
+                  </div>
+
+                  <div class="sub-component-box">
+                    <div class="sub-comp-header">
+                      <span class="comp-label">Component $s$:</span>
+                      <span class="comp-sub">$k^{-1}(e + dr) \bmod n$ (32 Bytes / 64 Hex)</span>
+                      <button id="copy-s-btn" class="icon-mini-btn" title="Copy s">📋</button>
+                    </div>
+                    <div class="code-mono comp-val" id="sig-s-hex">--</div>
+                  </div>
+                </div>
+
+                <div class="key-explanation mt-3">
+                  <span class="info-icon">💡</span>
+                  <span><strong>Concept:</strong> The signature is generated using the private key. Component $r$ represents the x-coordinate of the ephemeral point $k \times G$, while $s$ binds the message digest $e$ and private key $d$ to that ephemeral point.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- IN-LINE CONNECTOR: STEP 3 -> STEP 4 & 5 -->
+            <div class="inline-connector" id="trans-3-4">
+              <div class="connector-line"></div>
+              <div class="connector-pill">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <span>NEXT: Verify Signature with Public Key &amp; Test Message Tampering</span>
+              </div>
+              <div class="connector-line"></div>
+            </div>
+
+            <!-- ==============================================
+                 STEP 4 & 5 IN LINE: VERIFICATION & TAMPER TEST
+                 ============================================== -->
+            <div class="inline-step-block" id="sim-step4-card">
+              <div class="step-guide-bar">
+                <span class="step-number-pill">STEP 4 &amp; 5</span>
+                <div class="step-guide-title">
+                  <h3>Signature Verification &amp; Tamper Testing</h3>
+                  <span class="step-action-tag tag-fourth" id="tag-step4">▶ PRESS THIS FOURTH &amp; FIFTH</span>
+                </div>
+                <div class="btn-group-actions">
+                  <button id="verify-btn" class="action-btn success-action" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>4. Verify Signature</span>
+                  </button>
+                  
+                  <button id="tamper-btn" class="action-btn danger-action" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>5. Tamper Message</span>
+                  </button>
+
+                  <button id="revert-btn" class="action-btn secondary-action hidden">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                    <span>Revert to Original</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Verification Flow Visual Animation -->
+              <div id="verify-anim-stage" class="anim-stage hidden mt-3">
+                <div class="verify-flow-visual">
+                  <div class="verify-inputs-row">
+                    <div class="verify-input-node" id="v-node-msg">
+                      <span class="v-icon">📄</span>
+                      <span class="v-name">Message Payload</span>
+                      <span class="v-status-tag" id="v-msg-tag">Original</span>
+                    </div>
+                    <div class="verify-plus">+</div>
+                    <div class="verify-input-node" id="v-node-sig">
+                      <span class="v-icon">✍️</span>
+                      <span class="v-name">Signature $(r, s)$</span>
+                      <span class="v-status-tag">64-Byte ASN/P1363</span>
+                    </div>
+                    <div class="verify-plus">+</div>
+                    <div class="verify-input-node" id="v-node-pub">
+                      <span class="v-icon">🌐</span>
+                      <span class="v-name">Public Key ($Q$)</span>
+                      <span class="v-status-tag">NIST P-256 Point</span>
+                    </div>
+                  </div>
+
+                  <div class="verify-arrow-down">
+                    <svg viewBox="0 0 24 50">
+                      <path d="M12 0 V40 M4 32 L12 40 L20 32" stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <span>Feed to Verification Engine</span>
+                  </div>
+
+                  <div class="verify-computation-box" id="verify-calc-box">
+                    <div class="v-calc-title">ECDSA Point Reconstruction Engine</div>
+                    <div class="v-calc-math">
+                      $$w = s^{-1} \bmod n, \quad u_1 = e \cdot w \bmod n, \quad u_2 = r \cdot w \bmod n$$
+                      $$(x_1, y_1) = u_1 \times G + u_2 \times Q, \quad v = x_1 \bmod n$$
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VERIFICATION RESULT BANNER (Animated Tick or Cross) -->
+              <div id="verification-result-box" class="verification-result-container hidden mt-4">
+                
+                <!-- Result State: Valid (Green Tick) -->
+                <div id="result-valid" class="result-banner valid hidden">
+                  <div class="result-symbol-wrap">
+                    <div class="result-check-circle">
+                      <svg class="result-svg-tick" viewBox="0 0 52 52">
+                        <circle class="tick-circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="tick-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="result-text-wrap">
+                    <div class="result-heading text-green">Signature Verified: AUTHENTIC (Valid)</div>
+                    <p class="result-desc">The digital signature is <strong>cryptographically valid</strong>! Mathematical equality $v = r$ was confirmed. This guarantees two essential properties:</p>
+                    <div class="guarantees-grid">
+                      <div class="guarantee-chip">
+                        <span class="g-icon">✅</span>
+                        <span><strong>Data Integrity:</strong> The message has NOT been altered in transit by even a single bit.</span>
+                      </div>
+                      <div class="guarantee-chip">
+                        <span class="g-icon">✅</span>
+                        <span><strong>Authenticity &amp; Non-Repudiation:</strong> Only the possessor of Private Key $d$ could have created this signature.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Result State: Invalid (Red Cross) -->
+                <div id="result-invalid" class="result-banner invalid hidden">
+                  <div class="result-symbol-wrap">
+                    <div class="result-cross-circle">
+                      <svg class="result-svg-cross" viewBox="0 0 52 52">
+                        <circle class="cross-circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="cross-line-1" fill="none" d="M16 16 36 36"/>
+                        <path class="cross-line-2" fill="none" d="M36 16 16 36"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="result-text-wrap">
+                    <div class="result-heading text-red">Signature Invalid: REJECTED (Verification Failed)</div>
+                    <p class="result-desc">The digital signature is <strong>INVALID</strong>! The verification point $u_1 G + u_2 Q$ yielded $v \neq r$.</p>
+                    <div class="tamper-explanation-box">
+                      <div class="tamper-alert-title">🚨 Cryptographic Tamper Analysis:</div>
+                      <p>Because the message was altered, SHA-256 produced a drastically different digest ($e_{\text{new}} \ne e_{\text{original}}$). This caused the scalar $u_1 = e \cdot w \bmod n$ to land on an entirely different point on the elliptic curve. The mathematical equation $u_1 G + u_2 Q = k G$ broke down completely, and the verifier instantly rejected the forged payload!</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Tamper Comparison Panel (Side-by-Side Hashes) -->
+              <div id="tamper-diff-panel" class="tamper-diff-panel hidden mt-4">
+                <h4 class="diff-title">🔍 Side-by-Side Payload &amp; Hash Comparison</h4>
+                <div class="diff-grid">
+                  <div class="diff-col original-col">
+                    <div class="diff-col-head text-green">ORIGINAL PAYLOAD</div>
+                    <div class="diff-msg">Hello, this is a secure message!</div>
+                    <div class="diff-hash-label">Original SHA-256 Digest:</div>
+                    <div class="diff-hash-val" id="diff-orig-hash">--</div>
+                  </div>
+                  <div class="diff-col tampered-col">
+                    <div class="diff-col-head text-red">TAMPERED PAYLOAD</div>
+                    <div class="diff-msg"><span class="highlight-tamper">Hello, this is a tampered message!</span></div>
+                    <div class="diff-hash-label">Tampered SHA-256 Digest (Avalanche Shift):</div>
+                    <div class="diff-hash-val" id="diff-tamp-hash">--</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EMBEDDED REAL-TIME AUDIT LOG CONSOLE AT BASE OF MASTER BOX -->
+            <div class="terminal-embedded mt-4">
+              <div class="terminal-header">
+                <div class="term-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <div class="term-title">Web Crypto API Cryptographic Audit Log</div>
+                <button id="clear-term-btn" class="term-clear-btn" title="Clear Audit Log">Clear</button>
+              </div>
+              <div id="terminal-body" class="terminal-body">
+                <div class="term-line info"><span class="time">[00:00:00]</span> Initialized Web Crypto Engine (secp256r1 / P-256 curve).</div>
+                <div class="term-line info"><span class="time">[00:00:00]</span> Cryptographic subsystem ready for execution.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section 5 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="procedure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 04 Procedure</span>
+          </button>
+          <button class="sec-nav-btn next-btn" data-target="conclusion">
+            <span>Scroll to Section 06: Conclusion</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 6: CONCLUSION
+           ==================================================== -->
+      <section id="section-conclusion" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">06</span> EXPERIMENTAL SUMMARY</div>
+          <h1 class="section-title">Conclusion &amp; Key Findings</h1>
+          <p class="section-intro">Formal academic summary of experimental observations, cryptographic properties verified, and engineering conclusions.</p>
+        </div>
+
+        <div class="cards-grid">
+          <div class="pro-card primary-card">
+            <div class="card-icon-title">
+              <div class="icon-circle icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h2 class="card-title">Experimental Conclusion</h2>
+                <span class="card-subtitle">Validated Engineering Hypotheses</span>
+              </div>
+            </div>
+            <div class="conclusion-summary-text">
+              <p>Through this virtual laboratory experiment, the implementation of the <strong>Elliptic Curve Digital Signature Algorithm (ECDSA)</strong> over the <strong>NIST P-256</strong> curve using <strong>SHA-256</strong> hashing was successfully demonstrated and verified.</p>
+              <ul class="styled-list mt-3">
+                <li><strong>Asymmetric Key Derivation:</strong> Verified that generating public key $Q = d \times G$ from a 256-bit private scalar $d$ is computationally trivial ($O(\log n)$), while deducing $d$ from $Q$ requires solving the ECDLP ($O(\sqrt{n})$), providing robust cryptographic security.</li>
+                <li><strong>Mathematical Integrity &amp; Verification:</strong> Successfully confirmed that authentic signatures yield $u_1 G + u_2 Q = (x_1, y_1)$ such that $x_1 \bmod n = r$, confirming sender origin and payload authenticity.</li>
+                <li><strong>Avalanche Tamper Detection:</strong> Confirmed that even modifying a single character in the message produces a totally distinct SHA-256 digest, which shifts the scalar linear combination $u_1 G + u_2 Q$ away from the signature's ephemeral point $r$, causing immediate cryptographic rejection.</li>
+                <li><strong>Efficiency Superiority:</strong> Demonstrated that ECDSA provides 128-bit security margin with only 64-byte signatures, making it substantially more efficient than traditional RSA algorithms.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="pro-card">
+            <h3 class="card-title text-primary mb-3">Self-Assessment Knowledge Quiz</h3>
+            <p class="text-muted small mb-3">Evaluate your understanding of the ECDSA experiment by answering these conceptual questions:</p>
+            
+            <div class="quiz-container">
+              <!-- Q1 -->
+              <div class="quiz-item" data-correct="b">
+                <p class="quiz-q"><strong>Q1.</strong> If an attacker intercepts public key $Q$ and generator $G$, which mathematical problem prevents them from deriving private key $d$?</p>
+                <div class="quiz-options">
+                  <label class="quiz-opt"><input type="radio" name="q1" value="a"> Integer Factorization Problem (IFP)</label>
+                  <label class="quiz-opt"><input type="radio" name="q1" value="b"> Elliptic Curve Discrete Logarithm Problem (ECDLP)</label>
+                  <label class="quiz-opt"><input type="radio" name="q1" value="c"> Shortest Vector Problem (SVP)</label>
+                </div>
+                <div class="quiz-feedback hidden"></div>
+              </div>
+
+              <!-- Q2 -->
+              <div class="quiz-item mt-3" data-correct="c">
+                <p class="quiz-q"><strong>Q2.</strong> What happens if a signer uses the same ephemeral scalar $k$ to sign two distinct messages?</p>
+                <div class="quiz-options">
+                  <label class="quiz-opt"><input type="radio" name="q2" value="a"> Nothing, it makes signing faster.</label>
+                  <label class="quiz-opt"><input type="radio" name="q2" value="b"> The verification will fail automatically.</label>
+                  <label class="quiz-opt"><input type="radio" name="q2" value="c"> The private key $d$ is exposed and can be algebraically calculated.</label>
+                </div>
+                <div class="quiz-feedback hidden"></div>
+              </div>
+
+              <!-- Q3 -->
+              <div class="quiz-item mt-3" data-correct="a">
+                <p class="quiz-q"><strong>Q3.</strong> Why does altering even one letter in the message cause the signature verification to fail?</p>
+                <div class="quiz-options">
+                  <label class="quiz-opt"><input type="radio" name="q3" value="a"> SHA-256 avalanche effect changes digest $e$, throwing off $u_1 = e \cdot w \bmod n$.</label>
+                  <label class="quiz-opt"><input type="radio" name="q3" value="b"> The public key changes dynamically when message changes.</label>
+                  <label class="quiz-opt"><input type="radio" name="q3" value="c"> The elliptic curve field prime $p$ is modified.</label>
+                </div>
+                <div class="quiz-feedback hidden"></div>
+              </div>
+
+              <button id="check-quiz-btn" class="action-btn secondary-action mt-3">Submit Answers</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="simulation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 05 Simulation</span>
+          </button>
+          <button class="sec-nav-btn next-btn" data-target="references">
+            <span>Scroll to Section 07: References</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SECTION 7: REFERENCES
+           ==================================================== -->
+      <section id="section-references" class="lab-section">
+        <div class="section-banner">
+          <div class="section-tag"><span class="tag-num">07</span> BIBLIOGRAPHY &amp; STANDARDS</div>
+          <h1 class="section-title">Academic &amp; Industrial References</h1>
+          <p class="section-intro">Authoritative textbooks, national standards, RFCs, and foundational cryptographic literature for further study.</p>
+        </div>
+
+        <div class="references-list">
+          <!-- Ref 1 -->
+          <div class="ref-card pro-card">
+            <div class="ref-index">1</div>
+            <div class="ref-content">
+              <h3 class="ref-title">Cryptography and Network Security: Principles and Practice (8th Edition)</h3>
+              <p class="ref-authors">William Stallings</p>
+              <p class="ref-citation">Pearson Education, 2020. Chapter 10: "Elliptic Curve Cryptography", Chapter 13: "Digital Signatures". Standard textbook across VTU, IIT, and global universities.</p>
+              <div class="ref-tags">
+                <span class="ref-tag">Academic Textbook</span>
+                <span class="ref-tag">ISBN: 978-0134444284</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ref 2 -->
+          <div class="ref-card pro-card">
+            <div class="ref-index">2</div>
+            <div class="ref-content">
+              <h3 class="ref-title">NIST FIPS PUB 186-5: Digital Signature Standard (DSS)</h3>
+              <p class="ref-authors">National Institute of Standards and Technology (NIST)</p>
+              <p class="ref-citation">U.S. Department of Commerce, 2023. Specifies the mathematical architecture and approval requirements for the Elliptic Curve Digital Signature Algorithm (ECDSA).</p>
+              <div class="ref-tags">
+                <span class="ref-tag">Federal Standard</span>
+                <span class="ref-tag">DOI: 10.6028/NIST.FIPS.186-5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ref 3 -->
+          <div class="ref-card pro-card">
+            <div class="ref-index">3</div>
+            <div class="ref-content">
+              <h3 class="ref-title">RFC 6979: Deterministic Usage of DSA and ECDSA</h3>
+              <p class="ref-authors">Thomas Pornin (Internet Engineering Task Force - IETF)</p>
+              <p class="ref-citation">RFC 6979, August 2013. Defines algorithms for generating the ephemeral scalar $k$ deterministically from private key and hash, eliminating risks of random number generator failure.</p>
+              <div class="ref-tags">
+                <span class="ref-tag">Internet Standard</span>
+                <span class="ref-tag">IETF RFC 6979</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ref 4 -->
+          <div class="ref-card pro-card">
+            <div class="ref-index">4</div>
+            <div class="ref-content">
+              <h3 class="ref-title">SEC 1: Elliptic Curve Cryptography (Version 2.0)</h3>
+              <p class="ref-authors">Standards for Efficient Cryptography Group (SECG)</p>
+              <p class="ref-citation">Certicom Research, May 2009. Comprehensive specification of curve parameters, point compression formats, scalar arithmetic, and ECDSA signature schemes.</p>
+              <div class="ref-tags">
+                <span class="ref-tag">Industrial Standard</span>
+                <span class="ref-tag">SECG SEC 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ref 5 -->
+          <div class="ref-card pro-card">
+            <div class="ref-index">5</div>
+            <div class="ref-content">
+              <h3 class="ref-title">W3C Web Cryptography API Recommendation</h3>
+              <p class="ref-authors">Mark Watson, Harry Halpin et al. (W3C Web Cryptography Working Group)</p>
+              <p class="ref-citation">World Wide Web Consortium, 2017. Standardized JavaScript API specification for performing secure cryptographic operations, including ECDSA and SHA-256, directly inside modern web browsers.</p>
+              <div class="ref-tags">
+                <span class="ref-tag">W3C Recommendation</span>
+                <span class="ref-tag">Web Crypto API</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 7 Navigation Footer -->
+        <div class="section-nav-footer">
+          <button class="sec-nav-btn prev-btn" data-target="conclusion">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Scroll up to 06 Conclusion</span>
+          </button>
+          <button class="sec-nav-btn top-btn" data-target="aim">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            <span>Back to Top (01 Aim)</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Academic Lab Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-brand">
+          <span class="footer-shield">🛡️</span>
+          <span>CRYPTOLAB • Virtual Cryptography Laboratory</span>
+        </div>
+        <p class="footer-sub">Designed for VTU, IIT, and Autonomous Engineering Colleges | Department of Computer Science &amp; Engineering</p>
+      </div>
+      <div class="footer-right">
+        <div class="footer-links">
+          <span>Experiment: ECDSA Implementation</span>
+          <span>•</span>
+          <span>Web Cryptography API Native Engine</span>
+          <span>•</span>
+          <span>Open Educational Resource</span>
+        </div>
+        <p class="footer-copy">© Virtual Laboratories Project • Developed for Educational &amp; Academic Research Purposes</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Back to Top Button -->
+  <button id="floating-top-btn" class="floating-top-btn hidden" aria-label="Scroll to top" title="Back to Top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
