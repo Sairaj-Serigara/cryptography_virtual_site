@@ -356,29 +356,31 @@
           <div class="cards-grid">
             <div class="pro-card">
               <h3 class="card-title text-primary">1.1 What is Cryptography?</h3>
-              <p>Cryptography is the scientific discipline of protecting digital information by transforming human-readable plaintext into unintelligible ciphertext and providing mathematical guarantees of security.</p>
-              
+              <p>Cryptography is the science of protecting digital information by transforming readable text into secret code. It ensures that only authorized people can access the information.</p>
+
               <div class="theory-highlight-box mt-3">
-                <strong>Core Security Pillars in Information Engineering:</strong>
+                <strong>Core Security Goals:</strong>
                 <ul class="mini-list mt-2">
-                  <li><strong>Confidentiality:</strong> Ensuring that unauthorized observers cannot read the message payload.</li>
-                  <li><strong>Integrity:</strong> Guaranteeing that data has not been altered, deleted, or inserted during transit.</li>
-                  <li><strong>Authenticity:</strong> Verifying the genuine origin identity of the communicating entity.</li>
-                  <li><strong>Non-Repudiation:</strong> Ensuring that the author of an authorized message cannot successfully deny authoring it.</li>
+                  <li><strong>Confidentiality:</strong> Only the intended recipient can read the message.</li>
+                  <li><strong>Integrity:</strong> The message cannot be changed without detection.</li>
+                  <li><strong>Authenticity:</strong> We can verify who actually sent the message.</li>
+                  <li><strong>Non-Repudiation:</strong> The sender cannot deny sending the message.</li>
                 </ul>
               </div>
             </div>
 
             <div class="pro-card">
               <h3 class="card-title text-primary">1.2 Digital Signatures vs. Traditional MACs</h3>
-              <p>In symmetric Message Authentication Codes (e.g., HMAC), both Alice and Bob share the exact same key. If a dispute arises, Bob cannot prove to a judge that Alice sent the message, because Bob also possesses the key and could have forged it.</p>
-              
+              <p>In traditional systems, both sender and receiver share the same secret key. This creates a problem: if there's a dispute, you cannot prove who sent the message because both have the same key.</p>
+
               <div class="math-card mt-3">
-                <div class="math-title">Asymmetric Signature Principle</div>
-                <p>Digital signatures solve this using an asymmetric key pair:</p>
-                $$\text{Signature} = \operatorname{Sign}(K_{\text{private}}, \operatorname{Hash}(M))$$
-                $$\text{Validation} = \operatorname{Verify}(K_{\text{public}}, \operatorname{Hash}(M), \text{Signature}) \in \{\text{True}, \text{False}\}$$
-                <p class="small text-muted mt-2">Only the holder of $K_{\text{private}}$ can forge the signature, but <em>any entity</em> possessing $K_{\text{public}}$ can definitively verify its authenticity.</p>
+                <div class="math-title">Digital Signatures Use Two Keys</div>
+                <p>Digital signatures solve this problem using two different keys:</p>
+                <ul class="mini-list mt-2">
+                  <li><strong>Private Key:</strong> Used only by the sender to create the signature (kept secret).</li>
+                  <li><strong>Public Key:</strong> Shared with everyone to verify the signature.</li>
+                </ul>
+                <p class="small text-muted mt-2">Only the sender with the private key can create the signature, but anyone with the public key can verify it's authentic.</p>
               </div>
             </div>
           </div>
@@ -388,68 +390,60 @@
         <div id="th-ecc" class="theory-pane">
           <div class="pro-card mb-4">
             <h3 class="card-title text-primary">2.1 What is Elliptic Curve Cryptography (ECC)?</h3>
-            <p>Elliptic Curve Cryptography is an approach to public-key cryptography based on the algebraic structure of elliptic curves over finite fields $\mathbb{F}_p$. In modern engineering, we use curves defined by the <strong>Short Weierstrass Equation</strong>:</p>
+            <p>Elliptic Curve Cryptography is a modern method for public-key cryptography. It uses mathematical curves instead of traditional number-based systems. ECC provides the same security as older systems but with much smaller keys.</p>
 
-            <div class="math-card text-center my-3">
-              $$y^2 \equiv x^3 + ax + b \pmod p$$
-              <p class="text-muted small">Where $a, b \in \mathbb{F}_p$ and the discriminant condition $4a^3 + 27b^2 \not\equiv 0 \pmod p$ ensures the curve is non-singular (contains no cusps or self-intersections).</p>
-            </div>
-
-            <div class="cards-grid mt-4">
-              <div class="sub-card">
-                <h4 class="sub-card-title">Point Addition $(P + Q = R)$</h4>
-                <p>Given two distinct points $P(x_1, y_1)$ and $Q(x_2, y_2)$ on the curve, the line through $P$ and $Q$ intersects the curve at a third point. Reflecting that point across the x-axis yields point $R = P + Q$:</p>
-                $$\lambda = \frac{y_2 - y_1}{x_2 - x_1} \pmod p$$
-                $$x_3 = \lambda^2 - x_1 - x_2 \pmod p, \quad y_3 = \lambda(x_1 - x_3) - y_1 \pmod p$$
-              </div>
-
-              <div class="sub-card">
-                <h4 class="sub-card-title">Point Doubling $(2P = R)$</h4>
-                <p>When adding a point to itself ($P = Q$), we take the tangent line to the curve at $P$:</p>
-                $$\lambda = \frac{3x_1^2 + a}{2y_1} \pmod p$$
-                $$x_3 = \lambda^2 - 2x_1 \pmod p, \quad y_3 = \lambda(x_1 - x_3) - y_1 \pmod p$$
-              </div>
+            <div class="theory-highlight-box mt-3">
+              <strong>Why ECC is Special:</strong>
+              <ul class="mini-list mt-2">
+                <li><strong>Smaller Keys:</strong> A 256-bit ECC key provides the same security as a 3072-bit RSA key.</li>
+                <li><strong>Faster Operations:</strong> Smaller keys mean faster calculations and less computing power needed.</li>
+                <li><strong>Less Storage:</strong> Takes up less space in memory and on disk.</li>
+                <li><strong>Perfect for Mobile:</strong> Ideal for smartphones, IoT devices, and embedded systems with limited resources.</li>
+              </ul>
             </div>
           </div>
 
           <div class="cards-grid">
             <div class="pro-card">
-              <h3 class="card-title text-primary">2.2 The Elliptic Curve Discrete Logarithm Problem (ECDLP)</h3>
-              <p>The entire security of ECC relies on the one-way nature of scalar multiplication:</p>
+              <h3 class="card-title text-primary">2.2 How ECC Works</h3>
+              <p>ECC is based on a special mathematical property: it's easy to calculate a point on a curve, but very hard to reverse the calculation.</p>
               <div class="math-card my-3">
-                $$Q = d \times G = \underbrace{G + G + \dots + G}_{d \text{ times}}$$
+                <div class="math-title">The Key Idea</div>
+                <p>We start with a base point called <strong>G</strong> (Generator) on the curve. We multiply it by a random number <strong>d</strong> (private key) to get a new point <strong>Q</strong> (public key):</p>
+                <p class="text-center mt-2"><strong>Q = d × G</strong></p>
               </div>
               <ul class="styled-list">
-                <li><strong>Easy Direction:</strong> Given scalar $d$ and base point $G$, calculating $Q$ takes only $O(\log_2 d)$ steps using the Double-and-Add algorithm.</li>
-                <li><strong>Hard Direction (ECDLP):</strong> Given public curve point $Q$ and generator $G$, computing scalar $d$ requires $O(\sqrt{n})$ operations via Pollard's Rho algorithm. For $n \approx 2^{256}$, this takes $\approx 2^{128}$ operations—impossible with all current world computing power combined!</li>
+                <li><strong>Easy:</strong> Given d and G, calculating Q is fast and simple.</li>
+                <li><strong>Hard:</strong> Given Q and G, finding d is extremely difficult - this is called the Elliptic Curve Discrete Logarithm Problem (ECDLP).</li>
+                <li><strong>Security:</strong> Even with the world's most powerful computers, it would take billions of years to break a 256-bit ECC key.</li>
               </ul>
             </div>
 
             <div class="pro-card">
-              <h3 class="card-title text-primary">2.3 NIST P-256 Curve Domain Parameters</h3>
-              <p>A standardized elliptic curve is defined by a 6-tuple $\mathcal{T} = (p, a, b, G, n, h)$:</p>
+              <h3 class="card-title text-primary">2.3 NIST P-256 Curve</h3>
+              <p>NIST P-256 is a standardized elliptic curve used worldwide. It's defined by specific mathematical parameters that ensure security and compatibility across different systems.</p>
               <div class="specs-table-wrapper mt-3">
                 <table class="specs-table">
                   <tbody>
                     <tr>
-                      <td><strong>Prime $p$</strong></td>
-                      <td>$2^{256} - 2^{224} + 2^{192} + 2^{96} - 1$ (Generalized Mersenne Prime)</td>
+                      <td><strong>Key Size</strong></td>
+                      <td>256 bits (32 bytes)</td>
                     </tr>
                     <tr>
-                      <td><strong>Coefficients</strong></td>
-                      <td>$a = -3$, $b \in \mathbb{F}_p$ as defined in FIPS 186-5</td>
+                      <td><strong>Security Level</strong></td>
+                      <td>128-bit security (equivalent to 3072-bit RSA)</td>
                     </tr>
                     <tr>
-                      <td><strong>Generator Point $G$</strong></td>
-                      <td>Fixed base curve point with coordinates $(G_x, G_y)$</td>
+                      <td><strong>Signature Size</strong></td>
+                      <td>64 bytes (128 hex characters)</td>
                     </tr>
                     <tr>
-                      <td><strong>Order $n$</strong></td>
-                      <td>Prime number of points in the subgroup generated by $G$</td>
+                      <td><strong>Standard</strong></td>
+                      <td>FIPS 186-5 (US Government Standard)</td>
                     </tr>
                     <tr>
-                      <td><strong>Cofactor $h$</strong></td>
-                      <td>$h = 1$ (every non-identity curve point generates the full group)</td>
+                      <td><strong>Usage</strong></td>
+                      <td>TLS/HTTPS, Bitcoin, Ethereum, SSH, Git</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1860,53 +1854,11 @@
             <div class="conclusion-summary-text">
               <p>Through this virtual laboratory experiment, the implementation of the <strong>Elliptic Curve Digital Signature Algorithm (ECDSA)</strong> over the <strong>NIST P-256</strong> curve using <strong>SHA-256</strong> hashing was successfully demonstrated and verified.</p>
               <ul class="styled-list mt-3">
-                <li><strong>Asymmetric Key Derivation:</strong> Verified that generating public key $Q = d \times G$ from a 256-bit private scalar $d$ is computationally trivial ($O(\log n)$), while deducing $d$ from $Q$ requires solving the ECDLP ($O(\sqrt{n})$), providing robust cryptographic security.</li>
-                <li><strong>Mathematical Integrity &amp; Verification:</strong> Successfully confirmed that authentic signatures yield $u_1 G + u_2 Q = (x_1, y_1)$ such that $x_1 \bmod n = r$, confirming sender origin and payload authenticity.</li>
-                <li><strong>Avalanche Tamper Detection:</strong> Confirmed that even modifying a single character in the message produces a totally distinct SHA-256 digest, which shifts the scalar linear combination $u_1 G + u_2 Q$ away from the signature's ephemeral point $r$, causing immediate cryptographic rejection.</li>
-                <li><strong>Efficiency Superiority:</strong> Demonstrated that ECDSA provides 128-bit security margin with only 64-byte signatures, making it substantially more efficient than traditional RSA algorithms.</li>
+                <li><strong>Key Generation:</strong> Successfully generated a public key from a private key using elliptic curve mathematics. The private key remains secret while the public key can be freely shared.</li>
+                <li><strong>Message Signing:</strong> Created a digital signature by combining the private key with the message hash. This signature proves the message came from the sender.</li>
+                <li><strong>Message Verification:</strong> Verified that the signature is valid using the public key. If the message is changed even slightly, verification fails.</li>
+                <li><strong>Tamper Detection:</strong> Confirmed that any modification to the message produces a different hash, causing the signature verification to fail. This ensures message integrity.</li>
               </ul>
-            </div>
-          </div>
-
-          <div class="pro-card">
-            <h3 class="card-title text-primary mb-3">Self-Assessment Knowledge Quiz</h3>
-            <p class="text-muted small mb-3">Evaluate your understanding of the ECDSA experiment by answering these conceptual questions:</p>
-            
-            <div class="quiz-container">
-              <!-- Q1 -->
-              <div class="quiz-item" data-correct="b">
-                <p class="quiz-q"><strong>Q1.</strong> If an attacker intercepts public key $Q$ and generator $G$, which mathematical problem prevents them from deriving private key $d$?</p>
-                <div class="quiz-options">
-                  <label class="quiz-opt"><input type="radio" name="q1" value="a"> Integer Factorization Problem (IFP)</label>
-                  <label class="quiz-opt"><input type="radio" name="q1" value="b"> Elliptic Curve Discrete Logarithm Problem (ECDLP)</label>
-                  <label class="quiz-opt"><input type="radio" name="q1" value="c"> Shortest Vector Problem (SVP)</label>
-                </div>
-                <div class="quiz-feedback hidden"></div>
-              </div>
-
-              <!-- Q2 -->
-              <div class="quiz-item mt-3" data-correct="c">
-                <p class="quiz-q"><strong>Q2.</strong> What happens if a signer uses the same ephemeral scalar $k$ to sign two distinct messages?</p>
-                <div class="quiz-options">
-                  <label class="quiz-opt"><input type="radio" name="q2" value="a"> Nothing, it makes signing faster.</label>
-                  <label class="quiz-opt"><input type="radio" name="q2" value="b"> The verification will fail automatically.</label>
-                  <label class="quiz-opt"><input type="radio" name="q2" value="c"> The private key $d$ is exposed and can be algebraically calculated.</label>
-                </div>
-                <div class="quiz-feedback hidden"></div>
-              </div>
-
-              <!-- Q3 -->
-              <div class="quiz-item mt-3" data-correct="a">
-                <p class="quiz-q"><strong>Q3.</strong> Why does altering even one letter in the message cause the signature verification to fail?</p>
-                <div class="quiz-options">
-                  <label class="quiz-opt"><input type="radio" name="q3" value="a"> SHA-256 avalanche effect changes digest $e$, throwing off $u_1 = e \cdot w \bmod n$.</label>
-                  <label class="quiz-opt"><input type="radio" name="q3" value="b"> The public key changes dynamically when message changes.</label>
-                  <label class="quiz-opt"><input type="radio" name="q3" value="c"> The elliptic curve field prime $p$ is modified.</label>
-                </div>
-                <div class="quiz-feedback hidden"></div>
-              </div>
-
-              <button id="check-quiz-btn" class="action-btn secondary-action mt-3">Submit Answers</button>
             </div>
           </div>
         </div>

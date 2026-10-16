@@ -1126,41 +1126,6 @@ function updateMessageMeta() {
 }
 
 // ==============================================================================
-// Self-Assessment Quiz Handler (Section 6)
-// ==============================================================================
-function checkQuizAnswers() {
-  const quizItems = document.querySelectorAll('.quiz-item');
-  let score = 0;
-  const total = quizItems.length;
-
-  quizItems.forEach(item => {
-    const correct = item.getAttribute('data-correct');
-    const checked = item.querySelector('input[type="radio"]:checked');
-    const feedback = item.querySelector('.quiz-feedback');
-
-    if (!feedback) return;
-    feedback.classList.remove('hidden', 'correct', 'incorrect');
-
-    if (!checked) {
-      feedback.classList.add('incorrect');
-      feedback.textContent = 'Please select an option.';
-      return;
-    }
-
-    if (checked.value === correct) {
-      score++;
-      feedback.classList.add('correct');
-      feedback.innerHTML = '<strong>Correct!</strong> Great job analyzing this cryptographic property.';
-    } else {
-      feedback.classList.add('incorrect');
-      feedback.innerHTML = `<strong>Incorrect.</strong> The correct answer is <strong>(${correct.toUpperCase()})</strong>.`;
-    }
-  });
-
-  showToast(`Quiz completed! Score: ${score}/${total}`, score === total ? 'success' : 'info');
-}
-
-// ==============================================================================
 // Theme Toggle Engine (Dark / Light)
 // ==============================================================================
 function initTheme() {
@@ -1299,9 +1264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (termBody) termBody.innerHTML = '';
     logTerminal('Audit log cleared.', 'info');
   });
-
-  // Quiz Submit Button
-  document.getElementById('check-quiz-btn')?.addEventListener('click', checkQuizAnswers);
 
   // Initial Meta and Stepper setup
   updateMessageMeta();
