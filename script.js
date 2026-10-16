@@ -202,7 +202,7 @@ function updateActiveNavLink(sectionId) {
     const progressText = document.getElementById('sim-state-percent');
     const progressBar = document.getElementById('sim-progress-bar');
     if (progressText) {
-      progressText.textContent = `Sec 0${index + 1}/07: ${SECTION_NAMES[sectionId] || sectionId}`;
+      progressText.textContent = `Sec 0${index + 1}/06: ${SECTION_NAMES[sectionId] || sectionId}`;
     }
     if (progressBar) {
       progressBar.style.width = `${pct}%`;
