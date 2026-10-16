@@ -444,7 +444,7 @@
         <div class="section-banner">
           <div class="section-tag"><span class="tag-num">03</span> LEARNING OUTCOMES</div>
           <h1 class="section-title">Laboratory Objectives</h1>
-          <p class="section-intro">Measurable academic learning milestones categorized under Bloom's Taxonomy for cryptographic system engineering.</p>
+          <p class="section-intro">Clear learning outcomes for understanding and implementing ECDSA digital signatures.</p>
         </div>
 
         <div class="objectives-grid">
@@ -453,8 +453,8 @@
             <div class="obj-badge">01</div>
             <div class="obj-content">
               <span class="obj-tag">Cognitive: Understand</span>
-              <h3 class="obj-title">Understand ECC Mathematical Foundations</h3>
-              <p class="obj-desc">Analyze the Short Weierstrass elliptic curve equation over finite prime fields $\mathbb{F}_p$, geometric point addition, doubling, and the discrete logarithm hardness (ECDLP).</p>
+              <h3 class="obj-title">Understand ECC Fundamentals</h3>
+              <p class="obj-desc">Learn the basic concept of Elliptic Curve Cryptography (ECC) and understand how it provides secure public-key cryptography.</p>
             </div>
           </div>
 
@@ -463,8 +463,8 @@
             <div class="obj-badge">02</div>
             <div class="obj-content">
               <span class="obj-tag">Practical: Generate</span>
-              <h3 class="obj-title">Generate Cryptographic NIST P-256 Key Pairs</h3>
-              <p class="obj-desc">Generate real, cryptographically secure 256-bit private scalar $d$ and derive uncompressed public key point $Q = d \times G$ using the native browser Web Cryptography API.</p>
+              <h3 class="obj-title">Generate ECC Key Pair</h3>
+              <p class="obj-desc">Generate a secure public and private key pair using the NIST P-256 elliptic curve through the Web Crypto API.</p>
             </div>
           </div>
 
@@ -473,8 +473,8 @@
             <div class="obj-badge">03</div>
             <div class="obj-content">
               <span class="obj-tag">Analytical: Digest</span>
-              <h3 class="obj-title">Execute SHA-256 Message Digesting</h3>
-              <p class="obj-desc">Compute fixed-length 256-bit cryptographic digests of arbitrary textual messages and observe how variable-length data is normalized into an integer modular field.</p>
+              <h3 class="obj-title">Hash the Message</h3>
+              <p class="obj-desc">Convert the input message into a SHA-256 hash before generating the digital signature.</p>
             </div>
           </div>
 
@@ -483,8 +483,8 @@
             <div class="obj-badge">04</div>
             <div class="obj-content">
               <span class="obj-tag">Implementation: Sign</span>
-              <h3 class="obj-title">Compute ECDSA $(r, s)$ Digital Signatures</h3>
-              <p class="obj-desc">Execute the signing equation using ephemeral scalar $k$ and private key $d$, extracting distinct big-endian 32-byte $(r, s)$ coordinate components.</p>
+              <h3 class="obj-title">Generate Digital Signature</h3>
+              <p class="obj-desc">Create a digital signature using the sender's private key and the ECDSA algorithm.</p>
             </div>
           </div>
 
@@ -493,8 +493,8 @@
             <div class="obj-badge">05</div>
             <div class="obj-content">
               <span class="obj-tag">Evaluation: Verify</span>
-              <h3 class="obj-title">Perform Public Asymmetric Verification</h3>
-              <p class="obj-desc">Demonstrate how any recipient can verify message validity and sender identity using public key $Q$ without ever accessing the signer's private key $d$.</p>
+              <h3 class="obj-title">Verify the Signature</h3>
+              <p class="obj-desc">Verify the digital signature using the sender's public key to confirm the authenticity and integrity of the message.</p>
             </div>
           </div>
 
@@ -503,8 +503,8 @@
             <div class="obj-badge">06</div>
             <div class="obj-content">
               <span class="obj-tag">Security: Audit</span>
-              <h3 class="obj-title">Analyze Message Tampering &amp; Avalanche Effect</h3>
-              <p class="obj-desc">Subject digital signatures to active tampering attacks by modifying single characters and verifying the immediate cryptographic rejection by the verification engine.</p>
+              <h3 class="obj-title">Detect Message Tampering</h3>
+              <p class="obj-desc">Demonstrate that modifying the message after signing causes signature verification to fail, proving message integrity.</p>
             </div>
           </div>
         </div>
