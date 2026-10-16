@@ -264,7 +264,7 @@
                 <tr>
                   <th>Component</th>
                   <th>Simple Explanation</th>
-                  <th>Purpose in This Project</th>
+                  <th>Purpose</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,282 +316,86 @@
         <div class="section-banner">
           <div class="section-tag"><span class="tag-num">02</span> THEORETICAL FOUNDATIONS</div>
           <h1 class="section-title">Cryptographic Theory of ECDSA</h1>
-          <p class="section-intro">Comprehensive, student-oriented mathematical engineering breakdown of Elliptic Curves, Group Law, Hash Digesting, and Asymmetric Signature Proofs.</p>
+          <p class="section-intro">Student-friendly introduction to cryptography, elliptic curves, digital signatures, and their real-world applications.</p>
         </div>
 
         <!-- Theory Section Navigation Tabs -->
         <div class="theory-nav-tabs">
-          <button class="theory-tab-btn active" data-theory-target="th-crypto">1. Cryptography &amp; Digital Signatures</button>
-          <button class="theory-tab-btn" data-theory-target="th-ecc">2. What is ECC &amp; ECDLP</button>
-          <button class="theory-tab-btn" data-theory-target="th-ecdsa">3. ECDSA Algorithm (Sign &amp; Verify)</button>
-          <button class="theory-tab-btn" data-theory-target="th-sha">4. SHA-256 &amp; Avalanche Effect</button>
+          <button class="theory-tab-btn active" data-theory-target="th-crypto">1. What is Cryptography?</button>
+          <button class="theory-tab-btn" data-theory-target="th-ecc">2. What is ECC?</button>
+          <button class="theory-tab-btn" data-theory-target="th-ecdsa">3. How ECDSA Works</button>
+          <button class="theory-tab-btn" data-theory-target="th-sha">4. SHA-256 Hashing</button>
           <button class="theory-tab-btn" data-theory-target="th-benefits">5. Advantages &amp; Applications</button>
         </div>
 
-        <!-- Theory Tab 1: Cryptography & Digital Signatures -->
+        <!-- Theory Tab 1: What is Cryptography? -->
         <div id="th-crypto" class="theory-pane active">
-          <div class="cards-grid">
-            <div class="pro-card">
-              <h3 class="card-title text-primary">1.1 What is Cryptography?</h3>
-              <p>Cryptography is the science of protecting digital information by transforming readable text into secret code. It ensures that only authorized people can access the information.</p>
-
-              <div class="theory-highlight-box mt-3">
-                <strong>Core Security Goals:</strong>
-                <ul class="mini-list mt-2">
-                  <li><strong>Confidentiality:</strong> Only the intended recipient can read the message.</li>
-                  <li><strong>Integrity:</strong> The message cannot be changed without detection.</li>
-                  <li><strong>Authenticity:</strong> We can verify who actually sent the message.</li>
-                  <li><strong>Non-Repudiation:</strong> The sender cannot deny sending the message.</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="pro-card">
-              <h3 class="card-title text-primary">1.2 Digital Signatures vs. Traditional MACs</h3>
-              <p>In traditional systems, both sender and receiver share the same secret key. This creates a problem: if there's a dispute, you cannot prove who sent the message because both have the same key.</p>
-
-              <div class="math-card mt-3">
-                <div class="math-title">Digital Signatures Use Two Keys</div>
-                <p>Digital signatures solve this problem using two different keys:</p>
-                <ul class="mini-list mt-2">
-                  <li><strong>Private Key:</strong> Used only by the sender to create the signature (kept secret).</li>
-                  <li><strong>Public Key:</strong> Shared with everyone to verify the signature.</li>
-                </ul>
-                <p class="small text-muted mt-2">Only the sender with the private key can create the signature, but anyone with the public key can verify it's authentic.</p>
-              </div>
-            </div>
+          <div class="pro-card">
+            <h3 class="card-title text-primary">What is Cryptography?</h3>
+            <p>Cryptography is the science of protecting digital information by transforming readable text into secret code. It ensures that only authorized people can access the information. Digital signatures use this technology to prove who sent a message and that the message hasn't been changed.</p>
+            
+            <ul class="styled-list mt-3">
+              <li><strong>Confidentiality:</strong> Only the intended recipient can read the message.</li>
+              <li><strong>Integrity:</strong> The message cannot be changed without detection.</li>
+              <li><strong>Authenticity:</strong> We can verify who actually sent the message.</li>
+              <li><strong>Non-Repudiation:</strong> The sender cannot deny sending the message.</li>
+            </ul>
           </div>
         </div>
 
-        <!-- Theory Tab 2: What is ECC & ECDLP -->
+        <!-- Theory Tab 2: What is ECC? -->
         <div id="th-ecc" class="theory-pane">
-          <div class="pro-card mb-4">
-            <h3 class="card-title text-primary">2.1 What is Elliptic Curve Cryptography (ECC)?</h3>
-            <p>Elliptic Curve Cryptography is a modern method for public-key cryptography. It uses mathematical curves instead of traditional number-based systems. ECC provides the same security as older systems but with much smaller keys.</p>
-
-            <div class="theory-highlight-box mt-3">
-              <strong>Why ECC is Special:</strong>
-              <ul class="mini-list mt-2">
-                <li><strong>Smaller Keys:</strong> A 256-bit ECC key provides the same security as a 3072-bit RSA key.</li>
-                <li><strong>Faster Operations:</strong> Smaller keys mean faster calculations and less computing power needed.</li>
-                <li><strong>Less Storage:</strong> Takes up less space in memory and on disk.</li>
-                <li><strong>Perfect for Mobile:</strong> Ideal for smartphones, IoT devices, and embedded systems with limited resources.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="cards-grid">
-            <div class="pro-card">
-              <h3 class="card-title text-primary">2.2 How ECC Works</h3>
-              <p>ECC is based on a special mathematical property: it's easy to calculate a point on a curve, but very hard to reverse the calculation.</p>
-              <div class="math-card my-3">
-                <div class="math-title">The Key Idea</div>
-                <p>We start with a base point called <strong>G</strong> (Generator) on the curve. We multiply it by a random number <strong>d</strong> (private key) to get a new point <strong>Q</strong> (public key):</p>
-                <p class="text-center mt-2"><strong>Q = d × G</strong></p>
-              </div>
-              <ul class="styled-list">
-                <li><strong>Easy:</strong> Given d and G, calculating Q is fast and simple.</li>
-                <li><strong>Hard:</strong> Given Q and G, finding d is extremely difficult - this is called the Elliptic Curve Discrete Logarithm Problem (ECDLP).</li>
-                <li><strong>Security:</strong> Even with the world's most powerful computers, it would take billions of years to break a 256-bit ECC key.</li>
-              </ul>
-            </div>
-
-            <div class="pro-card">
-              <h3 class="card-title text-primary">2.3 NIST P-256 Curve</h3>
-              <p>NIST P-256 is a standardized elliptic curve used worldwide. It's defined by specific mathematical parameters that ensure security and compatibility across different systems.</p>
-              <div class="specs-table-wrapper mt-3">
-                <table class="specs-table">
-                  <tbody>
-                    <tr>
-                      <td><strong>Key Size</strong></td>
-                      <td>256 bits (32 bytes)</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Security Level</strong></td>
-                      <td>128-bit security (equivalent to 3072-bit RSA)</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Signature Size</strong></td>
-                      <td>64 bytes (128 hex characters)</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Standard</strong></td>
-                      <td>FIPS 186-5 (US Government Standard)</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Usage</strong></td>
-                      <td>TLS/HTTPS, Bitcoin, Ethereum, SSH, Git</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <div class="pro-card">
+            <h3 class="card-title text-primary">What is Elliptic Curve Cryptography (ECC)?</h3>
+            <p>Elliptic Curve Cryptography is a modern method for public-key cryptography. It uses mathematical curves instead of traditional number-based systems. ECC provides the same security as older systems like RSA but with much smaller keys, making it faster and more efficient.</p>
+            
+            <ul class="styled-list mt-3">
+              <li><strong>Smaller Keys:</strong> A 256-bit ECC key provides the same security as a 3072-bit RSA key.</li>
+              <li><strong>Faster Operations:</strong> Smaller keys mean faster calculations and less computing power.</li>
+              <li><strong>Less Storage:</strong> Takes up less space in memory and on disk.</li>
+              <li><strong>Perfect for Mobile:</strong> Ideal for smartphones and devices with limited resources.</li>
+            </ul>
           </div>
         </div>
 
-        <!-- Theory Tab 3: ECDSA Algorithm -->
+        <!-- Theory Tab 3: How ECDSA Works -->
         <div id="th-ecdsa" class="theory-pane">
-          <div class="cards-grid">
-            <div class="pro-card primary-border">
-              <div class="badge-title">
-                <span class="step-num-badge">A</span>
-                <h3 class="card-title">ECDSA Signature Generation Algorithm</h3>
-              </div>
-              <p class="text-muted small mb-3">Executed by the Signer (Alice) using her Private Key $d$ and Message $m$:</p>
-
-              <ol class="algo-steps">
-                <li>
-                  <span class="algo-step-num">1</span>
-                  <div>
-                    <strong>Hash Message:</strong> Compute the cryptographic digest $e = \operatorname{SHA-256}(m)$. Convert $e$ to integer $z$.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">2</span>
-                  <div>
-                    <strong>Generate Ephemeral Scalar $k$:</strong> Select a cryptographically secure random integer $k \in [1, n-1]$.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">3</span>
-                  <div>
-                    <strong>Compute Curve Point:</strong> Perform scalar point multiplication:
-                    $$(x_1, y_1) = k \times G$$
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">4</span>
-                  <div>
-                    <strong>Calculate $r$:</strong>
-                    $$r = x_1 \bmod n$$
-                    If $r = 0$, pick another random $k$ and restart.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">5</span>
-                  <div>
-                    <strong>Calculate $s$:</strong> Compute the modular inverse $k^{-1} \bmod n$, then:
-                    $$s = k^{-1} (z + d \cdot r) \bmod n$$
-                    If $s = 0$, pick another random $k$ and restart.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">6</span>
-                  <div>
-                    <strong>Output Signature:</strong> The resulting digital signature is the pair <strong>$(r, s)$</strong>.
-                  </div>
-                </li>
-              </ol>
-
-              <div class="warning-callout mt-3">
-                <strong>Critical Engineering Warning (The Sony PS3 Flaw):</strong> The ephemeral key $k$ must NEVER be reused across two messages. If $k$ is repeated with private key $d$, an attacker can compute:
-                $$s_1 - s_2 = k^{-1}(z_1 - z_2) \implies k = \frac{z_1 - z_2}{s_1 - s_2} \bmod n \implies d = \frac{s_1 k - z_1}{r} \bmod n$$
-                This instantly leaks the private key $d$! RFC 6979 provides deterministic $k$ generation to prevent this catastrophe.
-              </div>
+          <div class="pro-card">
+            <h3 class="card-title text-primary">How ECDSA Works</h3>
+            <p>The Elliptic Curve Digital Signature Algorithm (ECDSA) allows a sender to sign a message using their private key. Anyone can verify this signature using the sender's public key. This ensures the message is authentic and has not been modified.</p>
+            
+            <div class="theory-highlight-box mt-3">
+              <strong>Signing Process:</strong>
+              <ul class="mini-list mt-2">
+                <li>The sender hashes their message using SHA-256.</li>
+                <li>The sender uses their private key to create a unique signature.</li>
+                <li>The signature is sent along with the message.</li>
+              </ul>
             </div>
-
-            <div class="pro-card primary-border">
-              <div class="badge-title">
-                <span class="step-num-badge">B</span>
-                <h3 class="card-title">ECDSA Signature Verification Algorithm</h3>
-              </div>
-              <p class="text-muted small mb-3">Executed by any Verifier (Bob) using Alice's Public Key $Q$, Message $m$, and Signature $(r, s)$:</p>
-
-              <ol class="algo-steps">
-                <li>
-                  <span class="algo-step-num">1</span>
-                  <div>
-                    <strong>Range Verification:</strong> Confirm that integers $r$ and $s$ satisfy $1 \le r, s \le n-1$. If not, signature is immediately <strong>INVALID</strong>.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">2</span>
-                  <div>
-                    <strong>Hash Message:</strong> Compute digest $e = \operatorname{SHA-256}(m)$ and extract integer $z$.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">3</span>
-                  <div>
-                    <strong>Compute Modular Inverse:</strong>
-                    $$w = s^{-1} \bmod n$$
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">4</span>
-                  <div>
-                    <strong>Compute Intermediate Scalars:</strong>
-                    $$u_1 = z \cdot w \bmod n, \quad u_2 = r \cdot w \bmod n$$
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">5</span>
-                  <div>
-                    <strong>Compute Verification Point:</strong>
-                    $$(x_1, y_1) = u_1 \times G + u_2 \times Q$$
-                    If $(x_1, y_1) = \mathcal{O}$ (point at infinity), signature is <strong>INVALID</strong>.
-                  </div>
-                </li>
-                <li>
-                  <span class="algo-step-num">6</span>
-                  <div>
-                    <strong>Verify Equality:</strong> Compute $v = x_1 \bmod n$.
-                    $$\text{Result} = \begin{cases} \mathbf{VALID} & \text{if } v = r \\ \mathbf{INVALID} & \text{if } v \neq r \end{cases}$$
-                  </div>
-                </li>
-              </ol>
-
-              <div class="math-card mt-3">
-                <div class="math-title">Why Does Verification Work? (Mathematical Proof)</div>
-                <p>Since $s \equiv k^{-1}(z + dr) \pmod n$, rearranging gives $k \equiv s^{-1}(z + dr) \equiv z w + d r w \equiv u_1 + u_2 d \pmod n$.</p>
-                <p class="mt-1">Substituting into curve arithmetic:</p>
-                $$u_1 G + u_2 Q = u_1 G + u_2 (d G) = (u_1 + u_2 d) G = k G = (x_1, y_1)$$
-                <p class="small text-muted mt-2">Hence, the x-coordinate of the recovered curve point matches $r = x_1 \bmod n$ if and only if the private key and original message were genuine.</p>
-              </div>
+            
+            <div class="theory-highlight-box mt-3">
+              <strong>Verification Process:</strong>
+              <ul class="mini-list mt-2">
+                <li>The receiver hashes the received message using SHA-256.</li>
+                <li>The receiver uses the sender's public key to verify the signature.</li>
+                <li>If the signature matches, the message is authentic and unchanged.</li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <!-- Theory Tab 4: SHA-256 & Avalanche Effect -->
+        <!-- Theory Tab 4: SHA-256 Hashing -->
         <div id="th-sha" class="theory-pane">
-          <div class="cards-grid">
-            <div class="pro-card">
-              <h3 class="card-title text-primary">4.1 Secure Hash Algorithm 256 (SHA-256)</h3>
-              <p>Signing large payloads directly with asymmetric scalar operations is computationally prohibitive. Therefore, ECDSA hashes the input payload into a 256-bit (32-byte) digest using SHA-256.</p>
-
-              <div class="theory-highlight-box mt-3">
-                <strong>Crucial Properties of SHA-256:</strong>
-                <ul class="mini-list mt-2">
-                  <li><strong>Deterministic:</strong> The exact same input string will always yield the exact same 64-hex-character digest.</li>
-                  <li><strong>Pre-image Resistance (One-Way):</strong> Given digest $H$, it is computationally impossible to determine input $M$ such that $\operatorname{SHA-256}(M) = H$.</li>
-                  <li><strong>Second Pre-image Resistance:</strong> Given $M_1$, it is infeasible to find $M_2 \neq M_1$ such that $\operatorname{SHA-256}(M_1) = \operatorname{SHA-256}(M_2)$.</li>
-                  <li><strong>Collision Resistance:</strong> Infeasible to find any two arbitrary messages with identical digests ($2^{128}$ complexity via birthday attack).</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="pro-card">
-              <h3 class="card-title text-primary">4.2 The Avalanche Effect in Digital Signatures</h3>
-              <p>A fundamental property of cryptographic hashes is the <strong>Avalanche Effect</strong>: changing as little as a single bit or character in the input message alters approximately 50% of the output bits completely pseudo-randomly.</p>
-              
-              <div class="avalanche-demo-box mt-3">
-                <div class="demo-row">
-                  <span class="demo-tag text-green">Original:</span>
-                  <code class="demo-code">Hello, this is a secure message!</code>
-                </div>
-                <div class="demo-hash">
-                  <code>464d6db81bf83505c21966a014902a2444390b1ec1895a04bb4954e3d36b7582</code>
-                </div>
-                <div class="demo-row mt-2">
-                  <span class="demo-tag text-red">Tampered:</span>
-                  <code class="demo-code">Hello, this is a tampered message!</code>
-                </div>
-                <div class="demo-hash">
-                  <code>34483a936a2eb6861501e4a6a12b4e5d666d63fbcc515a4aa311fbe4d95a975f</code>
-                </div>
-              </div>
-              <p class="small text-muted mt-2">Because the digest changes completely, $z_{\text{tampered}} \ne z_{\text{original}}$, the scalar $u_1 = z \cdot w \bmod n$ lands on a completely different curve coordinate, causing $v \neq r$ and immediately invalidating the signature.</p>
-            </div>
+          <div class="pro-card">
+            <h3 class="card-title text-primary">SHA-256 Hashing</h3>
+            <p>SHA-256 is a cryptographic hashing algorithm that converts any message into a fixed-length 256-bit (64 hex character) digest. This digest is unique to the original message. Even a tiny change in the message produces a completely different hash.</p>
+            
+            <ul class="styled-list mt-3">
+              <li><strong>Deterministic:</strong> The same input always produces the same hash.</li>
+              <li><strong>One-Way:</strong> You cannot reverse the hash to find the original message.</li>
+              <li><strong>Unique:</strong> Different messages produce different hashes.</li>
+              <li><strong>Avalanche Effect:</strong> Changing one character changes approximately 50% of the hash output.</li>
+            </ul>
           </div>
         </div>
 
@@ -599,22 +403,22 @@
         <div id="th-benefits" class="theory-pane">
           <div class="cards-grid">
             <div class="pro-card">
-              <h3 class="card-title text-primary">5.1 Advantages of ECDSA</h3>
+              <h3 class="card-title text-primary">Advantages of ECDSA</h3>
               <ul class="styled-list">
-                <li><strong>Compact Key &amp; Signature Sizes:</strong> 256-bit ECC key replaces 3072-bit RSA key. The signature is merely 64 bytes (compared to RSA's 384 bytes).</li>
-                <li><strong>Reduced Computation Overhead:</strong> Scalar point multiplication requires dramatically fewer clock cycles than 3072-bit modular exponentiation in RSA.</li>
-                <li><strong>Bandwidth &amp; Battery Conservation:</strong> Perfect for resource-constrained embedded systems, smart cards, satellite links, and mobile wallets.</li>
-                <li><strong>High Resistance to Known Quantum Attacks:</strong> While both RSA and ECC are vulnerable to Shor's algorithm on a large quantum computer, standard ECDSA on classical hardware offers superior security density per bit.</li>
+                <li><strong>Compact Keys:</strong> Smaller keys than RSA with equivalent security.</li>
+                <li><strong>Faster Performance:</strong> Requires less computing power and time.</li>
+                <li><strong>Efficient:</strong> Saves bandwidth, battery, and storage space.</li>
+                <li><strong>Modern Standard:</strong> Widely adopted in current security systems.</li>
               </ul>
             </div>
 
             <div class="pro-card">
-              <h3 class="card-title text-primary">5.2 Real-World Engineering Applications</h3>
+              <h3 class="card-title text-primary">Real-World Applications</h3>
               <ul class="styled-list">
-                <li><strong>Blockchain Protocols:</strong> Bitcoin (secp256k1) and Ethereum use ECDSA to sign transactions and authorize decentralized asset transfers.</li>
-                <li><strong>Transport Layer Security (TLS 1.3 / HTTPS):</strong> Modern web browsers and servers exchange ECDSA certificates for lightning-fast handshake authentication.</li>
-                <li><strong>OpenSSH &amp; Git Commit Signing:</strong> Developers use `ed25519` and `ecdsa-sha2-nistp256` keys to authenticate remote server access and verify git commits.</li>
-                <li><strong>Mobile Hardware Enclaves:</strong> Apple Secure Enclave and Android Keystore store ECDSA private keys in hardware-isolated silicon for biometric authentication.</li>
+                <li><strong>Blockchain:</strong> Bitcoin and Ethereum use ECDSA for transaction signing.</li>
+                <li><strong>Web Security:</strong> HTTPS and TLS 1.3 use ECDSA for secure connections.</li>
+                <li><strong>Software Development:</strong> Git commit signing and SSH authentication.</li>
+                <li><strong>Mobile Security:</strong> Apple Secure Enclave and Android Keystore use ECDSA.</li>
               </ul>
             </div>
           </div>
