@@ -545,10 +545,10 @@
                 <span class="proc-badge">Step 1</span>
                 <h3 class="proc-title">Generate ECC Key Pair</h3>
               </div>
-              <p class="proc-text">Initialize the native browser Web Cryptography API. Invoke <code>window.crypto.subtle.generateKey()</code> specifying algorithm <code>ECDSA</code> with named curve <code>P-256</code>. Extract the 256-bit random private key and compute the public key point consisting of X and Y coordinates.</p>
+              <p class="proc-text">Click "Generate Key Pair" to create a secure ECC public and private key pair using the NIST P-256 elliptic curve. The private key remains secret, while the public key is used for verification.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: NamedCurve "P-256", Usages: ["sign", "verify"]</span>
-                <span class="meta-tag">Outputs: CryptoKeyPair (Private Key, Public Key)</span>
+                <span class="meta-tag">Action: Generate Key Pair</span>
+                <span class="meta-tag">Result: Public and Private Keys</span>
               </div>
             </div>
           </div>
@@ -564,10 +564,10 @@
                 <span class="proc-badge">Step 2</span>
                 <h3 class="proc-title">Enter Message</h3>
               </div>
-              <p class="proc-text">Provide an arbitrary digital message or transaction text into the simulation input field. The default benchmark message is <code>Hello, this is a secure message!</code>. Encode the characters into UTF-8 byte stream using <code>TextEncoder()</code>.</p>
+              <p class="proc-text">Type the message you want to digitally sign. The default message is "Hello, this is a secure message!".</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: UTF-8 String</span>
-                <span class="meta-tag">Outputs: Uint8Array Buffer</span>
+                <span class="meta-tag">Action: Enter Message</span>
+                <span class="meta-tag">Result: Message Text</span>
               </div>
             </div>
           </div>
@@ -583,10 +583,10 @@
                 <span class="proc-badge">Step 3</span>
                 <h3 class="proc-title">Generate SHA-256 Hash</h3>
               </div>
-              <p class="proc-text">Invoke <code>window.crypto.subtle.digest("SHA-256", messageBuffer)</code>. Observe the transformation of the variable-length UTF-8 payload into a fixed 256-bit (64-character hexadecimal) cryptographic digest.</p>
+              <p class="proc-text">Click "Hash Message" to convert the message into a unique SHA-256 hash. This hash is used for generating the digital signature.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: Message Bytes</span>
-                <span class="meta-tag">Outputs: 32-Byte SHA-256 Digest</span>
+                <span class="meta-tag">Action: Hash Message</span>
+                <span class="meta-tag">Result: SHA-256 Hash</span>
               </div>
             </div>
           </div>
@@ -602,10 +602,10 @@
                 <span class="proc-badge">Step 4</span>
                 <h3 class="proc-title">Generate Digital Signature</h3>
               </div>
-              <p class="proc-text">Execute <code>window.crypto.subtle.sign()</code> with private key and hash. The algorithm generates an ephemeral key, computes a curve point, extracts the r value, and calculates the s value. Deconstruct the output into distinct 32-byte components r and s.</p>
+              <p class="proc-text">Click "Sign Message" to create a digital signature using the sender's private key. Display the generated signature in hexadecimal format.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: Private Key, SHA-256 Hash</span>
-                <span class="meta-tag">Outputs: IEEE P1363 Signature (r and s)</span>
+                <span class="meta-tag">Action: Sign Message</span>
+                <span class="meta-tag">Result: Digital Signature</span>
               </div>
             </div>
           </div>
@@ -621,10 +621,10 @@
                 <span class="proc-badge">Step 5</span>
                 <h3 class="proc-title">Verify Signature</h3>
               </div>
-              <p class="proc-text">Execute <code>window.crypto.subtle.verify()</code> passing the original message bytes, public key, and signature. Confirm that the verification succeeds, yielding <strong>Signature Verified (Valid)</strong> with a green indicator.</p>
+              <p class="proc-text">Click "Verify Signature". The system verifies the signature using the sender's public key and confirms whether the message is authentic and unchanged.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: Public Key, Message Bytes, Signature Buffer</span>
-                <span class="meta-tag">Outputs: Boolean Verification Result (true)</span>
+                <span class="meta-tag">Action: Verify Signature</span>
+                <span class="meta-tag">Result: Verification Status</span>
               </div>
             </div>
           </div>
@@ -638,12 +638,12 @@
             <div class="proc-body pro-card">
               <div class="proc-header">
                 <span class="proc-badge">Step 6</span>
-                <h3 class="proc-title">Modify Message (Tamper Test)</h3>
+                <h3 class="proc-title">Modify the Received Message</h3>
               </div>
-              <p class="proc-text">Inject an intentional message corruption by clicking "Tamper Message", altering the payload to <code>Hello, this is a tampered message!</code>. Observe the dramatic divergence in the SHA-256 hash output caused by the avalanche effect.</p>
+              <p class="proc-text">Edit the received message manually to simulate message tampering. Even a small modification changes the SHA-256 hash and affects verification.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: Corrupted Payload String</span>
-                <span class="meta-tag">Outputs: Divergent Hash Digest</span>
+                <span class="meta-tag">Action: Edit Message</span>
+                <span class="meta-tag">Result: Modified Message</span>
               </div>
             </div>
           </div>
@@ -657,12 +657,12 @@
             <div class="proc-body pro-card">
               <div class="proc-header">
                 <span class="proc-badge">Step 7</span>
-                <h3 class="proc-title">Verify Again &amp; Conclude</h3>
+                <h3 class="proc-title">Verify Again</h3>
               </div>
-              <p class="proc-text">Execute signature verification on the tampered message against the original signature. Observe the immediate failure: <strong>Signature Invalid (Rejected)</strong> with a red indicator. Reset the experiment to restart the cycle.</p>
+              <p class="proc-text">Click "Verify Signature" again. The verification should fail, proving that the message was modified after it was digitally signed.</p>
               <div class="proc-meta">
-                <span class="meta-tag">Inputs: Corrupted Message, Original Signature, Public Key</span>
-                <span class="meta-tag">Outputs: Boolean Verification Result (false)</span>
+                <span class="meta-tag">Action: Verify Signature</span>
+                <span class="meta-tag">Result: Verification Failed</span>
               </div>
             </div>
           </div>
