@@ -156,7 +156,7 @@ async function copyToClipboard(text, description = 'Data') {
 // ==============================================================================
 // Continuous One-Page Navigation & ScrollSpy Controller
 // ==============================================================================
-const SECTION_ORDER = ['aim', 'theory', 'objective', 'procedure', 'simulation', 'conclusion', 'references'];
+const SECTION_ORDER = ['aim', 'theory', 'objective', 'procedure', 'simulation', 'conclusion'];
 
 const SECTION_NAMES = {
   aim: 'Aim',
@@ -164,8 +164,7 @@ const SECTION_NAMES = {
   objective: 'Objective',
   procedure: 'Procedure',
   simulation: 'Simulation',
-  conclusion: 'Conclusion',
-  references: 'References'
+  conclusion: 'Conclusion'
 };
 
 /**
@@ -239,7 +238,7 @@ function initScrollSpy() {
 
       // Check if user is scrolled to near bottom of document
       if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 80)) {
-        updateActiveNavLink('references');
+        updateActiveNavLink('conclusion');
         return;
       }
 

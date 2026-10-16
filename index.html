@@ -186,15 +186,6 @@
               </svg>
             </button>
           </li>
-          <li class="nav-item">
-            <button class="nav-link" data-section="references">
-              <span class="nav-num">07</span>
-              <span class="nav-text">References</span>
-              <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
-          </li>
         </ul>
       </nav>
 
@@ -208,10 +199,10 @@
         <div class="progress-wrap">
           <div class="progress-info">
             <span>Simulation State</span>
-            <span id="sim-state-percent">Step 1/7</span>
+            <span id="sim-state-percent">Step 1/6</span>
           </div>
           <div class="progress-bar-bg">
-            <div id="sim-progress-bar" class="progress-bar-fill" style="width: 14%;"></div>
+            <div id="sim-progress-bar" class="progress-bar-fill" style="width: 16%;"></div>
           </div>
         </div>
       </div>
@@ -1649,101 +1640,6 @@
           <button class="sec-nav-btn prev-btn" data-target="simulation">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
             <span>Scroll up to 05 Simulation</span>
-          </button>
-          <button class="sec-nav-btn next-btn" data-target="references">
-            <span>Scroll to Section 07: References</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-        </div>
-      </section>
-
-      <!-- ====================================================
-           SECTION 7: REFERENCES
-           ==================================================== -->
-      <section id="section-references" class="lab-section">
-        <div class="section-banner">
-          <div class="section-tag"><span class="tag-num">07</span> BIBLIOGRAPHY &amp; STANDARDS</div>
-          <h1 class="section-title">Academic &amp; Industrial References</h1>
-          <p class="section-intro">Authoritative textbooks, national standards, RFCs, and foundational cryptographic literature for further study.</p>
-        </div>
-
-        <div class="references-list">
-          <!-- Ref 1 -->
-          <div class="ref-card pro-card">
-            <div class="ref-index">1</div>
-            <div class="ref-content">
-              <h3 class="ref-title">Cryptography and Network Security: Principles and Practice (8th Edition)</h3>
-              <p class="ref-authors">William Stallings</p>
-              <p class="ref-citation">Pearson Education, 2020. Chapter 10: "Elliptic Curve Cryptography", Chapter 13: "Digital Signatures". Standard textbook across VTU, IIT, and global universities.</p>
-              <div class="ref-tags">
-                <span class="ref-tag">Academic Textbook</span>
-                <span class="ref-tag">ISBN: 978-0134444284</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ref 2 -->
-          <div class="ref-card pro-card">
-            <div class="ref-index">2</div>
-            <div class="ref-content">
-              <h3 class="ref-title">NIST FIPS PUB 186-5: Digital Signature Standard (DSS)</h3>
-              <p class="ref-authors">National Institute of Standards and Technology (NIST)</p>
-              <p class="ref-citation">U.S. Department of Commerce, 2023. Specifies the mathematical architecture and approval requirements for the Elliptic Curve Digital Signature Algorithm (ECDSA).</p>
-              <div class="ref-tags">
-                <span class="ref-tag">Federal Standard</span>
-                <span class="ref-tag">DOI: 10.6028/NIST.FIPS.186-5</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ref 3 -->
-          <div class="ref-card pro-card">
-            <div class="ref-index">3</div>
-            <div class="ref-content">
-              <h3 class="ref-title">RFC 6979: Deterministic Usage of DSA and ECDSA</h3>
-              <p class="ref-authors">Thomas Pornin (Internet Engineering Task Force - IETF)</p>
-              <p class="ref-citation">RFC 6979, August 2013. Defines algorithms for generating the ephemeral scalar $k$ deterministically from private key and hash, eliminating risks of random number generator failure.</p>
-              <div class="ref-tags">
-                <span class="ref-tag">Internet Standard</span>
-                <span class="ref-tag">IETF RFC 6979</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ref 4 -->
-          <div class="ref-card pro-card">
-            <div class="ref-index">4</div>
-            <div class="ref-content">
-              <h3 class="ref-title">SEC 1: Elliptic Curve Cryptography (Version 2.0)</h3>
-              <p class="ref-authors">Standards for Efficient Cryptography Group (SECG)</p>
-              <p class="ref-citation">Certicom Research, May 2009. Comprehensive specification of curve parameters, point compression formats, scalar arithmetic, and ECDSA signature schemes.</p>
-              <div class="ref-tags">
-                <span class="ref-tag">Industrial Standard</span>
-                <span class="ref-tag">SECG SEC 1</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Ref 5 -->
-          <div class="ref-card pro-card">
-            <div class="ref-index">5</div>
-            <div class="ref-content">
-              <h3 class="ref-title">W3C Web Cryptography API Recommendation</h3>
-              <p class="ref-authors">Mark Watson, Harry Halpin et al. (W3C Web Cryptography Working Group)</p>
-              <p class="ref-citation">World Wide Web Consortium, 2017. Standardized JavaScript API specification for performing secure cryptographic operations, including ECDSA and SHA-256, directly inside modern web browsers.</p>
-              <div class="ref-tags">
-                <span class="ref-tag">W3C Recommendation</span>
-                <span class="ref-tag">Web Crypto API</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 7 Navigation Footer -->
-        <div class="section-nav-footer">
-          <button class="sec-nav-btn prev-btn" data-target="conclusion">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            <span>Scroll up to 06 Conclusion</span>
           </button>
           <button class="sec-nav-btn top-btn" data-target="aim">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
