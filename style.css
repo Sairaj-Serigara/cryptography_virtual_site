@@ -920,6 +920,26 @@ code, pre {
   background: var(--primary-light);
 }
 
+.specs-table tr:nth-child(even) td {
+  background: var(--bg-subtle);
+}
+
+.specs-table tr:nth-child(even):hover td {
+  background: var(--primary-light);
+}
+
+.table-icon {
+  font-size: 1.1rem;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.table-note {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 /* ==========================================================================
    Theory Section Navigation & Content
    ========================================================================== */

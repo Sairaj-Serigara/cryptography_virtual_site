@@ -263,45 +263,40 @@
               <thead>
                 <tr>
                   <th>Component</th>
-                  <th>Cryptographic Parameter</th>
-                  <th>Standard Specification</th>
-                  <th>Output Dimension</th>
+                  <th>Simple Explanation</th>
+                  <th>Purpose in This Project</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Elliptic Curve</strong></td>
-                  <td>NIST P-256 / secp256r1</td>
-                  <td>Weierstrass Form: $y^2 \equiv x^3 - 3x + b \pmod p$</td>
-                  <td>256-bit Field Prime</td>
+                  <td><span class="table-icon">🔐</span> <strong>Elliptic Curve (P-256)</strong></td>
+                  <td>The mathematical standard used by Elliptic Curve Cryptography (ECC).</td>
+                  <td>Generates the secure public and private key pair used in the project.</td>
                 </tr>
                 <tr>
-                  <td><strong>Private Key ($d$)</strong></td>
-                  <td>Cryptographically Secure Random Scalar</td>
-                  <td>$d \in_R [1, n-1]$</td>
-                  <td>32 Bytes (64 Hex digits)</td>
+                  <td><span class="table-icon">🔑</span> <strong>Private Key</strong></td>
+                  <td>A secret key known only to the sender.</td>
+                  <td>Used to digitally sign the message.</td>
                 </tr>
                 <tr>
-                  <td><strong>Public Key ($Q$)</strong></td>
-                  <td>Scalar Point Multiplication</td>
-                  <td>$Q = d \times G = (x_Q, y_Q)$</td>
-                  <td>65 Bytes Uncompressed (130 Hex)</td>
+                  <td><span class="table-icon">📢</span> <strong>Public Key</strong></td>
+                  <td>A key that can be shared with everyone.</td>
+                  <td>Used to verify the digital signature.</td>
                 </tr>
                 <tr>
-                  <td><strong>Digest Engine</strong></td>
-                  <td>SHA-256 (FIPS 180-4)</td>
-                  <td>Merkle–Damgård 64-round Compression</td>
-                  <td>256 Bits (64 Hex digits)</td>
+                  <td><span class="table-icon">#️⃣</span> <strong>SHA-256</strong></td>
+                  <td>A cryptographic hashing algorithm.</td>
+                  <td>Converts the message into a unique fixed-length hash before signing.</td>
                 </tr>
                 <tr>
-                  <td><strong>Signature $(r, s)$</strong></td>
-                  <td>ECDSA IEEE P1363 / ANSI X9.62</td>
-                  <td>$r = (kG)_x \bmod n$, $s = k^{-1}(e + dr) \bmod n$</td>
-                  <td>64 Bytes (32B $r$ + 32B $s$)</td>
+                  <td><span class="table-icon">✍️</span> <strong>Digital Signature</strong></td>
+                  <td>A unique signature generated using the sender's private key.</td>
+                  <td>Proves that the message is authentic and has not been modified.</td>
                 </tr>
               </tbody>
             </table>
           </div>
+          <p class="table-note mt-3"><em>Note: This simplified table explains the role of each component in the ECDSA workflow. The underlying mathematical operations are performed automatically by the Web Crypto API.</em></p>
         </div>
 
         <!-- Section 1 Navigation Footer -->
